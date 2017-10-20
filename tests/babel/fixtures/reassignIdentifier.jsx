@@ -10,7 +10,6 @@ function foo() {}
   fn = () => 1;
   fn = foo.bind(null);
 
-  // not hoistable
   let a = 1;
   a = 2;
   fn = () => a;

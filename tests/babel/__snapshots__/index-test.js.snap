@@ -305,55 +305,6 @@ import * as React from \\"react\\";
 })();"
 `;
 
-exports[`reflective-bind babel transform arrowOuterConstAndNonconst.jsx 1`] = `
-"// @flow
-
-import * as React from \\"react\\";
-
-(function () {
-  function outer(constant: number) {
-    let variable = 2;
-
-    // Should not hoist because it references a non-constant identifier.
-    const shouldNotHoist = () => {
-      variable;
-      return constant;
-    };
-
-    variable = 3;
-
-    // Use in JSXExpressionContainer to enable hoisting
-    <div onClick={shouldNotHoist} />;
-
-    return shouldNotHoist();
-  }
-
-  return outer(1);
-})();"
-`;
-
-exports[`reflective-bind babel transform arrowOuterNonconstant.jsx 1`] = `
-"// @flow
-
-import * as React from \\"react\\";
-
-(function () {
-  let a = 1;
-
-  // Should not hoist because it references a non-constant identifier.
-  const shouldNotHoist = () => {
-    return a;
-  };
-
-  a = 10;
-
-  // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
-
-  return shouldNotHoist();
-})();"
-`;
-
 exports[`reflective-bind babel transform arrowRedeclareVar.jsx 1`] = `
 "// @flow
 
@@ -401,6 +352,119 @@ import * as React from \\"react\\";
   }
 
   return outer();
+})();"
+`;
+
+exports[`reflective-bind babel transform arrowReferenceLateAssignment.jsx 1`] = `
+"// @flow
+
+import * as React from \\"react\\";
+
+(function () {
+  const c = 1;
+  let a = 1;
+
+  // Should not hoist because it references a variable that is assigned after.
+  const shouldNotHoist = () => {
+    // Reference the non-constant identifier first.
+    alert(a);
+    // Reference a constant identifier next.
+    // Make sure we don't hoist even if we reference a constant.
+    alert(c);
+    return a;
+  };
+
+  a = 10;
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <div onClick={shouldNotHoist} />;
+
+  return shouldNotHoist();
+})();"
+`;
+
+exports[`reflective-bind babel transform arrowReferenceLateAssignmentDifferentScope.jsx 1`] = `
+"// @flow
+
+import * as React from \\"react\\";
+
+(function () {
+  const c = 1;
+  let a = 1;
+
+  // Should not hoist because it references a variable that is assigned after.
+  const shouldNotHoist = () => {
+    // Reference the non-constant identifier first.
+    alert(a);
+    // Reference a constant identifier next.
+    // Make sure we don't hoist even if we reference a constant.
+    alert(c);
+    return a;
+  };
+
+  if (a < 5) {
+    // Reassignment in different scope comes after the arrow function.
+    a = 10;
+  }
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <div onClick={shouldNotHoist} />;
+
+  return shouldNotHoist();
+})();"
+`;
+
+exports[`reflective-bind babel transform arrowReferenceOkAssignment.jsx 1`] = `
+"// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted(a) {
+  return a;
+}
+
+import * as React from \\"react\\";
+
+(function () {
+  let a = 1;
+  a = 10;
+
+  // Hoistable because the reassignment happens before the function definition.
+  const hoistable = _testBind(_testBBHoisted, this, a);
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <div onClick={hoistable} />;
+
+  return hoistable();
+})();"
+`;
+
+exports[`reflective-bind babel transform arrowReferenceOkAssignmentDifferentScope.jsx 1`] = `
+"// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted(a) {
+  return a;
+}
+
+import * as React from \\"react\\";
+
+(function () {
+  let a = 1;
+  if (a < 5) {
+    // Reassignment in different scope should be ok as long as it is before the
+    // arrow function.
+    a = 10;
+  }
+
+  // Hoistable because the reassignment happens before the function definition.
+  const hoistable = _testBind(_testBBHoisted, this, a);
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <div onClick={hoistable} />;
+
+  return hoistable();
 })();"
 `;
 
@@ -933,6 +997,10 @@ exports[`reflective-bind babel transform reassignIdentifier.jsx 1`] = `
 
 import { babelBind as _testBind } from \\"../../src\\";
 
+function _testBBHoisted2(a) {
+  return a;
+}
+
 function _testBBHoisted() {
   return 1;
 }
@@ -947,10 +1015,9 @@ function foo() {}
   fn = _testBind(_testBBHoisted, this);
   fn = _testBind(foo, null);
 
-  // not hoistable
   let a = 1;
   a = 2;
-  fn = () => a;
+  fn = _testBind(_testBBHoisted2, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
   <div onClick={fn} />;

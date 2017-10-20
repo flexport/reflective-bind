@@ -245,9 +245,8 @@ module.exports = function(opts) {
       return;
     }
     state.canHoist =
-      binding.constant &&
       // Since we have determined that this identifier is bound outside the
-      // scope of the funciton, we must pass this identifier into the hoisted
+      // scope of the function, we must pass this identifier into the hoisted
       // function. This means that we will reference the binding immediately,
       // instead of when the function is called. This will break for cases
       // where the binding actually occurs after the function node.
@@ -259,7 +258,13 @@ module.exports = function(opts) {
       //     const test = _babelBind(_bbHoisted, this, a); // REFERENCE ERROR!
       //     const a = 1;
       // We must detect this case, and prevent the hoisting from happening.
-      isBindingDefinitelyBeforePath(binding, state.fnPath);
+      isBindingDefinitelyBeforePath(binding, state.fnPath) &&
+      // For all constantViolations, we have to make sure they also come
+      // before the fnPath, otherwise we will bind to the wrong value.
+      (binding.constant ||
+        binding.constantViolations.every(p => {
+          return isPathDefinitelyBeforeOtherPath(p, state.fnPath);
+        }));
 
     if (!state.canHoist) {
       // This line unfortunately only stops traversing the visitor keys of the
@@ -321,97 +326,99 @@ module.exports = function(opts) {
     );
   }
 
-  // Returns true iff we are 100% sure the binding is executed before the path.
-  // https://github.com/babel/babel/blob/75808a2d14a5872472eb12ee5135faca4950d57a/packages/babel-traverse/src/path/introspection.js#L216
   function isBindingDefinitelyBeforePath(binding, path) {
+    const isBindingFnDeclaration = t.isFunctionDeclaration(binding.path);
+    /* istanbul ignore if  */
+    if (isBindingFnDeclaration && binding.identifier !== binding.path.node.id) {
+      throw new Error(
+        "binding identifier does not match the function declaration id"
+      );
+    }
+
     // If the binding is a function declaration (e.g. function foo() {}),
     // binding.path.scope will get you the scope of the actual function, not
     // the scope the binding is created in. Need to do
     // binding.path.parentPath.scope instead.
-    const isBindingFnDeclaration =
-      t.isFunctionDeclaration(binding.path) &&
-      binding.identifier === binding.path.node.id;
     const bscope = isBindingFnDeclaration
       ? binding.path.parentPath.scope
       : binding.path.scope;
-    /* istanbul ignore if */
+    /* istanbul ignore if  */
     if (bscope !== path.scope && !isAncestorScope(bscope, path.scope)) {
       throw new Error(
         "binding's scope must be equal to or is an ancestor of the path's scope"
       );
     }
 
-    const bindingAncestry = binding.path.getAncestry();
-    const pathAncestry = path.getAncestry();
-    const [bindingAncestorIdx, pathAncestorIdx] = commonAncestorIndices(
-      bindingAncestry,
-      pathAncestry
+    return isPathDefinitelyBeforeOtherPath(binding.path, path);
+  }
+
+  // Returns true iff we are 100% sure checkPath is executed before otherPath.
+  // https://github.com/babel/babel/blob/75808a2d14a5872472eb12ee5135faca4950d57a/packages/babel-traverse/src/path/introspection.js#L216
+  function isPathDefinitelyBeforeOtherPath(checkPath, otherPath) {
+    const checkPathAncestry = checkPath.getAncestry();
+    const otherPathAncestry = otherPath.getAncestry();
+    const [checkPathAncestorIdx, otherPathAncestorIdx] = commonAncestorIndices(
+      checkPathAncestry,
+      otherPathAncestry
     );
-    if (bindingAncestorIdx === 0) {
-      // This means that the path is part of the binding. An example of this is
+    if (checkPathAncestorIdx === 0) {
+      // This means that otherPath is part of checkPath. An example of this is
       // a recursive function:
       // const a = () => a();
-      // This means the binding is not created before the path is executed.
+      // This means checkPath is not executed before the otherPath is executed.
       return false;
-    }
-    /* istanbul ignore if */
-    if (bindingAncestorIdx < 0 || pathAncestorIdx <= 0) {
-      // This means that there is no common ancestor, or path is the ancestor
-      // of binding. Neither case is valid for us.
-      throw new Error(
-        `Invalid ancestor indices [${bindingAncestorIdx}, ${pathAncestorIdx}]`
-      );
+    } else if (checkPathAncestorIdx < 0 || otherPathAncestorIdx <= 0) {
+      // This means that there is no common ancestor, or otherPath is the ancestor
+      // of checkPath.
+      return false;
     }
 
     // Get the path one level below the common ancestor, to determine which
     // one is executed first.
-    const bindingRelationship = bindingAncestry[bindingAncestorIdx - 1];
-    const pathRelationship = pathAncestry[pathAncestorIdx - 1];
-    /* istanbul ignore if */
-    if (!bindingRelationship || !pathRelationship) {
+    const checkPathRelationship = checkPathAncestry[checkPathAncestorIdx - 1];
+    const otherPathRelationship = otherPathAncestry[otherPathAncestorIdx - 1];
+    /* istanbul ignore if  */
+    if (!checkPathRelationship || !otherPathRelationship) {
       // This should never happen.
-      throw new Error("Invalid binding or path relationship!");
+      throw new Error(
+        "Invalid checkPathRelationship or otherPathRelationship!"
+      );
     }
 
     // If both relationshps are part of a container list, the key property
     // gives you the index in the container.
-    if (bindingRelationship.listKey && pathRelationship.listKey) {
-      /* istanbul ignore if */
-      if (bindingRelationship.container !== pathRelationship.container) {
+    if (checkPathRelationship.listKey && otherPathRelationship.listKey) {
+      /* istanbul ignore if  */
+      if (checkPathRelationship.container !== otherPathRelationship.container) {
         // This should never happen.
         throw new Error("Relationships not in the same container!");
       }
       // Function declarations can be referenced before they are executed.
       return (
-        isBindingFnDeclaration || bindingRelationship.key < pathRelationship.key
+        t.isFunctionDeclaration(checkPath) ||
+        checkPathRelationship.key < otherPathRelationship.key
       );
     }
 
-    // Otherwise, use the visitor order to determine which relationshio is
+    // Otherwise, use the visitor order to determine which relationship is
     // executed first.
-    const commonAncestorType = bindingAncestry[bindingAncestorIdx].type;
+    const commonAncestorType = checkPathAncestry[checkPathAncestorIdx].type;
     const visitorKeys = t.VISITOR_KEYS[commonAncestorType];
-    const bindingPosition = visitorKeys.indexOf(
-      bindingRelationship.listKey || bindingRelationship.key
+    const checkPathPosition = visitorKeys.indexOf(
+      checkPathRelationship.listKey || checkPathRelationship.key
     );
-    const pathPosition = visitorKeys.indexOf(
-      pathRelationship.listKey || pathRelationship.key
+    const otherPathPosition = visitorKeys.indexOf(
+      otherPathRelationship.listKey || otherPathRelationship.key
     );
-    /* istanbul ignore if */
-    if (bindingPosition < 0) {
-      throw new Error(`Invalid bindingPosition ${bindingPosition}`);
+    /* istanbul ignore if  */
+    if (checkPathPosition < 0) {
+      throw new Error(`Invalid checkPathRelationship ${checkPathPosition}`);
     }
-    /* istanbul ignore if */
-    if (pathPosition < 0) {
-      throw new Error(`Invalid pathPosition ${pathPosition}`);
+    /* istanbul ignore if  */
+    if (otherPathPosition < 0) {
+      throw new Error(`Invalid otherPathPosition ${otherPathPosition}`);
     }
-    /* istanbul ignore if */
-    if (bindingPosition >= pathPosition) {
-      throw new Error(
-        "Binding does not occur before path in visitor key order!"
-      );
-    }
-    return true;
+    return checkPathPosition < otherPathPosition;
   }
 
   // Returns true iff maybeAncestorScope is an ancestor of startScope.
