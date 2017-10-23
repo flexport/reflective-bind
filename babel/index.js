@@ -328,7 +328,7 @@ module.exports = function(opts) {
 
   function isBindingDefinitelyBeforePath(binding, path) {
     const isBindingFnDeclaration = t.isFunctionDeclaration(binding.path);
-    /* istanbul ignore if  */
+    /* istanbul ignore if */
     if (isBindingFnDeclaration && binding.identifier !== binding.path.node.id) {
       throw new Error(
         "binding identifier does not match the function declaration id"
@@ -342,7 +342,7 @@ module.exports = function(opts) {
     const bscope = isBindingFnDeclaration
       ? binding.path.parentPath.scope
       : binding.path.scope;
-    /* istanbul ignore if  */
+    /* istanbul ignore if */
     if (bscope !== path.scope && !isAncestorScope(bscope, path.scope)) {
       throw new Error(
         "binding's scope must be equal to or is an ancestor of the path's scope"
@@ -377,7 +377,7 @@ module.exports = function(opts) {
     // one is executed first.
     const checkPathRelationship = checkPathAncestry[checkPathAncestorIdx - 1];
     const otherPathRelationship = otherPathAncestry[otherPathAncestorIdx - 1];
-    /* istanbul ignore if  */
+    /* istanbul ignore if */
     if (!checkPathRelationship || !otherPathRelationship) {
       // This should never happen.
       throw new Error(
@@ -388,7 +388,7 @@ module.exports = function(opts) {
     // If both relationshps are part of a container list, the key property
     // gives you the index in the container.
     if (checkPathRelationship.listKey && otherPathRelationship.listKey) {
-      /* istanbul ignore if  */
+      /* istanbul ignore if */
       if (checkPathRelationship.container !== otherPathRelationship.container) {
         // This should never happen.
         throw new Error("Relationships not in the same container!");
@@ -410,11 +410,11 @@ module.exports = function(opts) {
     const otherPathPosition = visitorKeys.indexOf(
       otherPathRelationship.listKey || otherPathRelationship.key
     );
-    /* istanbul ignore if  */
+    /* istanbul ignore if */
     if (checkPathPosition < 0) {
       throw new Error(`Invalid checkPathRelationship ${checkPathPosition}`);
     }
-    /* istanbul ignore if  */
+    /* istanbul ignore if */
     if (otherPathPosition < 0) {
       throw new Error(`Invalid otherPathPosition ${otherPathPosition}`);
     }
@@ -488,7 +488,7 @@ module.exports = function(opts) {
   }
 
   function nodesDefinitelyEqual(node1, node2) {
-    /* istanbul ignore else  */
+    /* istanbul ignore else */
     if (node1.type !== node2.type) {
       return false;
     } else if (t.isThisExpression(node1)) {
@@ -542,7 +542,7 @@ module.exports = function(opts) {
   }
 
   function addToHoistPath(node) {
-    /* istanbul ignore else  */
+    /* istanbul ignore else */
     if (_hoistPath.node.body && _hoistPath.node.body.length) {
       node.leadingComments = _hoistPath.node.body[0].leadingComments;
       _hoistPath.node.body[0].leadingComments = undefined;
