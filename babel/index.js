@@ -206,7 +206,7 @@ module.exports = function(opts) {
     ThisExpression(path, state) {
       // Only allow hoisting if `this` refers to the same `this` as the arrow
       // function we want to hoist.
-      if (!sameThisContext(state.fnPath, path)) {
+      if (!isDefinitelySameThisContext(state.fnPath, path)) {
         return;
       }
 
@@ -483,7 +483,7 @@ module.exports = function(opts) {
    * This means that the function-ancestor chain must only consist of arrow
    * functions.
    */
-  function sameThisContext(parentFnPath, path) {
+  function isDefinitelySameThisContext(parentFnPath, path) {
     let cur = path.getFunctionParent();
     while (cur) {
       if (cur === parentFnPath) {
