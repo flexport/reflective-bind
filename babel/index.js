@@ -361,16 +361,29 @@ module.exports = function(opts) {
       checkPathAncestry,
       otherPathAncestry
     );
+
     if (checkPathAncestorIdx === 0) {
-      // This means that otherPath is part of checkPath. An example of this is
-      // a recursive function:
+      // This means that checkPath is a direct ancestor of otherPath. An
+      // example of this is a recursive function:
       // const a = () => a();
       // This means checkPath is not executed before the otherPath is executed.
       return false;
-    } else if (checkPathAncestorIdx < 0 || otherPathAncestorIdx <= 0) {
-      // This means that there is no common ancestor, or otherPath is the ancestor
-      // of checkPath.
+    } else if (otherPathAncestorIdx === 0) {
+      // This means that checkPath is a direct ancestor of otherPath.
+      // In our current use case of this function, this means that the
+      // arrow function we want to hoist (otherPath) is a direct ancestor
+      // of the declaration / reassignment (checkPath). This means that we are
+      // either declaring, or reassigning, an identifier inside the function,
+      // which means we can't hoist the arrow function.
       return false;
+    }
+
+    /* instanbul ignore if */
+    if (checkPathAncestorIdx < 0 || otherPathAncestorIdx <= 0) {
+      // This means that there is no common ancestor, which should never happen.
+      throw new Error(
+        `Invalid ancestor indices [${checkPathAncestorIdx}, ${otherPathAncestorIdx}]`
+      );
     }
 
     // Get the path one level below the common ancestor, to determine which
