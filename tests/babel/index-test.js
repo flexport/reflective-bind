@@ -75,6 +75,8 @@ const EVAL_RESULTS = {
   "arrowJsxMemberExpression.jsx": undefined,
   "arrowMemberExpression.jsx": 10,
   "arrowNested.jsx": 10,
+  "arrowNestedHoistDeep.jsx": undefined,
+  "arrowNestedHoistInner.jsx": undefined,
   "arrowReferenceLateAssignment.jsx": 10,
   "arrowReferenceLateAssignmentDifferentScope.jsx": 10,
   "arrowReferenceOkAssignment.jsx": 10,

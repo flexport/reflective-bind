@@ -305,6 +305,64 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform arrowNestedHoistDeep.jsx 1`] = `
+"// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted2(a, b) {
+  let c = 3;
+  const nestedHoistable = _testBind(_testBBHoisted, this, a, b, c);
+  return <div onClick={nestedHoistable} />;
+}
+
+function _testBBHoisted(a, b, c, d) {
+  return a + b + c + d;
+}
+
+import * as React from \\"react\\";
+
+(function () {
+  let a = 1;
+
+  const hoistable = _testBind(_testBBHoisted2, this, a);
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <div onClick={hoistable} />;
+})();"
+`;
+
+exports[`reflective-bind babel transform arrowNestedHoistInner.jsx 1`] = `
+"// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted(item) {
+  return item;
+}
+
+import * as React from \\"react\\";
+
+(function () {
+  let nonConst = 1;
+
+  const notHoistable = items => {
+    // Refer to \`nonConst\` to prevent hoisting of outer function.
+    nonConst;
+
+    return items.map(item => {
+      const hoistable = _testBind(_testBBHoisted, this, item);
+      // Use in JSXExpressionContainer to enable hoisting
+      return <div onClick={hoistable} />;
+    });
+  };
+
+  nonConst = 2;
+
+  <PureChild render={notHoistable} />;
+})();"
+`;
+
 exports[`reflective-bind babel transform arrowRedeclareVar.jsx 1`] = `
 "// @flow
 
