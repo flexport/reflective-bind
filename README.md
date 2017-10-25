@@ -11,7 +11,7 @@ The best part is, it requires almost no code change 🙌
 
 ## Installation
 
-```
+```sh
 npm install --save reflective-bind
 ```
 
@@ -124,7 +124,7 @@ The following are examples of some inline functions that will be transformed int
 
 - Inline arrow functions:
 
-```js
+```jsx
 function MyComponent(props) {
   const msg = "Hello " + props.user.name.first;
   return <PureChild onClick={() => alert(msg)} />
@@ -133,7 +133,7 @@ function MyComponent(props) {
 
 - `Function.prototype.bind`:
 
-```js
+```jsx
 function MyComponent(props) {
   const handleClick = props.callback.bind(undefined, "yay");
   return <PureChild onClick={handleClick} />
@@ -142,7 +142,7 @@ function MyComponent(props) {
 
 - Multiple assignments / reassignments:
 
-```js
+```jsx
 function MyComponent(props) {
   let handleClick = () => {...};
   
@@ -158,7 +158,7 @@ function MyComponent(props) {
 
 - Ternary expressions:
 
-```js
+```jsx
 function MyComponent(props) {
   const handleClick = props.condition
     ? () => {...}
@@ -170,7 +170,7 @@ function MyComponent(props) {
 
 - For maximum optimization, avoid accessing nested attributes in your arrow function. Prefer to pull the nested value out to a const and close over it in your arrow function.
 
-```js
+```jsx
 function MyComponent(props) {
   
   // PureChild will re-render whenever `props` changes (bad)
@@ -195,7 +195,7 @@ There are a few edge cases that can cause an arrow function to not be transforme
 
 - Your arrow function should not close over variables whose value is set after the arrow function.
 
-```js
+```jsx
 function MyComponent(props) {
   let foo = 1;
   
@@ -213,7 +213,7 @@ function MyComponent(props) {
 
 - Your arrow function must be defined inline the JSX, or at most 1 reference away.
 
-```js
+```jsx
 function MyComponent(props) {
   // This arrow function won't be transformed because `fn` is not referenced
   // directly in the JSX.
