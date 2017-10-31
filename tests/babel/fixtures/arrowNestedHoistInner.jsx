@@ -12,7 +12,7 @@ import * as React from "react";
     return items.map(item => {
       const hoistable = () => item;
       // Use in JSXExpressionContainer to enable hoisting
-      return <div onClick={hoistable} />;
+      return <React.Component onClick={hoistable} />;
     });
   };
 

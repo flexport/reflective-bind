@@ -24,7 +24,7 @@ import * as React from "react";
         const hoistable = () => w;
 
         // Use in JSXExpressionContainer to enable hoisting
-        <div onClick={hoistable} />;
+        <React.Component onClick={hoistable} />;
 
         break;
       }

@@ -13,7 +13,7 @@ import * as React from "react";
   };
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable(2)(4);
 })();

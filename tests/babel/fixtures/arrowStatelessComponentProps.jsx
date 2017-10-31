@@ -10,5 +10,5 @@ function MyComponent(props: {nested: {callback: () => void}}) {
     props.nested.callback();
   };
 
-  return <div onClick={hoistable} />;
+  return <React.Component onClick={hoistable} />;
 }

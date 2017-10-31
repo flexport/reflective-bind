@@ -5,4 +5,4 @@ import * as React from "react";
 const hoistable = () => {};
 
 // Use in JSXExpressionContainer to enable hoisting
-<div onClick={hoistable} />;
+<React.Component onClick={hoistable} />;

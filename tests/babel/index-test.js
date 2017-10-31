@@ -112,6 +112,7 @@ const EVAL_RESULTS = {
   "fnSimple.jsx": 4,
   "fnTopLevel.jsx": undefined,
   "fnWithFlow.jsx": 4,
+  "jsxHtmlLiteral.jsx": undefined,
   "mapArrow.jsx": undefined,
   "noTransform.jsx": undefined,
   "reassignIdentifier.jsx": undefined,

@@ -6,5 +6,5 @@ import * as React from "react";
   const shouldNotHoist = () => shouldNotHoist();
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 })();

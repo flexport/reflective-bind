@@ -6,7 +6,7 @@ import * as React from "react";
   const hoistable = (a, b, c) => a + b + c;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable
     .bind(null, 1)

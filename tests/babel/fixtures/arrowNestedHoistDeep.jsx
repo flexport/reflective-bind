@@ -8,9 +8,9 @@ import * as React from "react";
   const hoistable = b => {
     let c = 3;
     const nestedHoistable = d => a + b + c + d;
-    return <div onClick={nestedHoistable} />;
+    return <React.Component onClick={nestedHoistable} />;
   };
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 })();

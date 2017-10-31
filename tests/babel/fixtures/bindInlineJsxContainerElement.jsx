@@ -6,5 +6,5 @@ import * as React from "react";
   function foo() {}
 
   // Inline bind in JSXExpressionContainer should be converted.
-  <div onClick={foo.bind(this)} />;
+  <React.Component onClick={foo.bind(this)} />;
 })();

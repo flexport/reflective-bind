@@ -10,7 +10,7 @@ import {babelBind as _testBind} from "../../src";
   const hoistable = a => a;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return _testBind(hoistable, null, 1)();
 })();

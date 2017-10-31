@@ -17,5 +17,5 @@ import * as React from "react";
   };
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistMeWithoutFlowIdentifiers} />;
+  <React.Component onClick={hoistMeWithoutFlowIdentifiers} />;
 })();

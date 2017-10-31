@@ -87,6 +87,22 @@ module.exports = function(opts) {
   };
 
   const visitor = {
+    JSXOpeningElement(path) {
+      const nameNode = path.node.name;
+      if (
+        t.isJSXIdentifier(nameNode) &&
+        nameNode.name !== "this" &&
+        // isCompatTag returns true if the input string is to be transformed to
+        // to a string (html literal) in the React.createElement call.
+        // https://github.com/babel/babel/blob/04d2c030be2ecbbcdfc664b6ef16ef5f23eb0b20/packages/babel-plugin-transform-react-jsx/src/index.js#L15
+        t.react.isCompatTag(nameNode.name)
+      ) {
+        // No need to transform inline functions on html literals since an html
+        // literal cannot be a pure component.
+        path.skip();
+      }
+    },
+
     JSXExpressionContainer(path) {
       const exprPath = path.get("expression");
       if (t.isIdentifier(exprPath)) {

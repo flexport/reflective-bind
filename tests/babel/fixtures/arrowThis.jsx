@@ -37,7 +37,7 @@ import React from "react";
       };
 
       // Use in JSXExpressionContainer to enable hoisting
-      <div onClick={hoistable} />;
+      <React.Component onClick={hoistable} />;
     },
     shouldNotHoist: {val: 1},
   };

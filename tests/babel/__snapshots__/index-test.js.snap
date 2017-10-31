@@ -19,7 +19,7 @@ import { babelBind as _testBind } from \\"../../src\\";
   const hoistable = _testBind2(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return _testBind(hoistable, null, 1)();
 })();"
@@ -44,7 +44,7 @@ const _testBind = require(\\"../../src\\").babelBind;
   const hoistable = _testBind2(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return _testBind(hoistable, null, 1)();
 })();"
@@ -65,7 +65,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable.bind(null, 1).bind(null, 2).bind(null, 3)();
 })();"
@@ -92,7 +92,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, prop);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable({ a: { b: 10 } });
 })();"
@@ -137,7 +137,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, fn);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   function fn() {}
 })();"
@@ -153,7 +153,7 @@ import * as React from \\"react\\";
   const a = 2;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 
   return shouldNotHoist();
 })();"
@@ -175,7 +175,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable(2, 3);
 })();"
@@ -186,12 +186,12 @@ exports[`reflective-bind babel transform arrowInlineJsxContainerElement.jsx 1`] 
 
 import { babelBind as _testBind } from \\"../../src\\";
 
-function _testBBHoisted2() {
-  <div />;
+function _testBBHoisted2(React) {
+  <React.Component />;
 }
 
-function _testBBHoisted() {
-  <div onClick={_testBind(_testBBHoisted2, this)} />;
+function _testBBHoisted(React) {
+  <React.Component onClick={_testBind(_testBBHoisted2, this, React)} />;
 }
 
 import * as React from \\"react\\";
@@ -199,7 +199,7 @@ import * as React from \\"react\\";
 (function () {
   // Inline arrow fn in JSXExpressionContainer should be hoisted.
   // Nested arrow fn should also be hoisted.
-  <div onClick={_testBind(_testBBHoisted, this)} />;
+  <React.Component onClick={_testBind(_testBBHoisted, this, React)} />;
 })();"
 `;
 
@@ -219,12 +219,12 @@ import * as React from \\"react\\";
 (function () {
   const Component = props => {};
 
-  // Should add \`Component\` as a parameter to the hoisted function, but not
-  // \`div\`.
+  // Should add \`HoistedIdentifier\` as a parameter to the hoisted function, but
+  // not \`div\`.
   const hoistable = _testBind(_testBBHoisted, this, Component);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 })();"
 `;
 
@@ -249,7 +249,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, Component);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 })();"
 `;
 
@@ -273,7 +273,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable({ a: { b: 10 } });
 })();"
@@ -299,7 +299,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable(2)(4);
 })();"
@@ -310,10 +310,10 @@ exports[`reflective-bind babel transform arrowNestedHoistDeep.jsx 1`] = `
 
 import { babelBind as _testBind } from \\"../../src\\";
 
-function _testBBHoisted2(a, b) {
+function _testBBHoisted2(a, React, b) {
   let c = 3;
   const nestedHoistable = _testBind(_testBBHoisted, this, a, b, c);
-  return <div onClick={nestedHoistable} />;
+  return <React.Component onClick={nestedHoistable} />;
 }
 
 function _testBBHoisted(a, b, c, d) {
@@ -325,10 +325,10 @@ import * as React from \\"react\\";
 (function () {
   let a = 1;
 
-  const hoistable = _testBind(_testBBHoisted2, this, a);
+  const hoistable = _testBind(_testBBHoisted2, this, a, React);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 })();"
 `;
 
@@ -353,7 +353,7 @@ import * as React from \\"react\\";
     return items.map(item => {
       const hoistable = _testBind(_testBBHoisted, this, item);
       // Use in JSXExpressionContainer to enable hoisting
-      return <div onClick={hoistable} />;
+      return <React.Component onClick={hoistable} />;
     });
   };
 
@@ -383,7 +383,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable();
 })();"
@@ -404,7 +404,7 @@ import * as React from \\"react\\";
     const a = 2;
 
     // Use in JSXExpressionContainer to enable hoisting
-    <div onClick={shouldNotHoist} />;
+    <React.Component onClick={shouldNotHoist} />;
 
     return shouldNotHoist();
   }
@@ -435,7 +435,7 @@ import * as React from \\"react\\";
   a = 10;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 
   return shouldNotHoist();
 })();"
@@ -466,7 +466,7 @@ import * as React from \\"react\\";
   }
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 
   return shouldNotHoist();
 })();"
@@ -491,7 +491,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable();
 })();"
@@ -520,7 +520,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable();
 })();"
@@ -542,7 +542,7 @@ import * as React from \\"react\\";
   };
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 
   return shouldNotHoist();
 })();"
@@ -563,7 +563,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable(1, 2, 3)(4);
 })();"
@@ -587,7 +587,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable(3, 4);
 })();"
@@ -610,7 +610,7 @@ import React from \\"react\\";
 function MyComponent(props: { nested: { callback: () => void } }) {
   const hoistable = _testBind(_testBBHoisted, this, props);
 
-  return <div onClick={hoistable} />;
+  return <React.Component onClick={hoistable} />;
 }"
 `;
 
@@ -658,7 +658,7 @@ import React from \\"react\\";
       const hoistable = _testBind(_testBBHoisted, this, outerScopeVar);
 
       // Use in JSXExpressionContainer to enable hoisting
-      <div onClick={hoistable} />;
+      <React.Component onClick={hoistable} />;
     },
     shouldNotHoist: { val: 1 }
   };
@@ -692,7 +692,7 @@ import React from \\"react\\";
       const hoistable = _testBind(_testBBHoisted, this, this.props.fn, this.props.nested);
 
       // Use in JSXExpressionContainer to enable hoisting
-      <div onClick={hoistable} />;
+      <React.Component onClick={hoistable} />;
     },
     props: {
       fn: () => {},
@@ -764,7 +764,7 @@ import React from \\"react\\";
       const hoistable = _testBind(_testBBHoisted, this, outerScopeVar, this.props, this.props.val, this.props.nested);
 
       // Use in JSXExpressionContainer to enable hoisting
-      <div onClick={hoistable} />;
+      <React.Component onClick={hoistable} />;
     },
     props: {
       val: 1,
@@ -831,7 +831,7 @@ import React from \\"react\\";
       const hoistable = _testBind(_testBBHoisted, this, outerScopeVar, this.state, this.state.val, this.state.nested);
 
       // Use in JSXExpressionContainer to enable hoisting
-      <div onClick={hoistable} />;
+      <React.Component onClick={hoistable} />;
     },
     state: {
       val: 1,
@@ -853,7 +853,7 @@ import * as React from \\"react\\";
 const hoistable = _testBind(_testBBHoisted, this);
 
 // Use in JSXExpressionContainer to enable hoisting
-<div onClick={hoistable} />;"
+<React.Component onClick={hoistable} />;"
 `;
 
 exports[`reflective-bind babel transform arrowWithFlow.jsx 1`] = `
@@ -877,7 +877,7 @@ import * as React from \\"react\\";
   const hoistable = _testBind(_testBBHoisted, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   return hoistable(3, 4);
 })();"
@@ -899,7 +899,7 @@ import * as React from \\"react\\";
   const bindable = _testBind(test, null, 1, 2);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={bindable} />;
+  <React.Component onClick={bindable} />;
 
   return bindable();
 })();"
@@ -915,7 +915,7 @@ import * as React from \\"react\\";
   function foo() {}
 
   // Inline bind in JSXExpressionContainer should be converted.
-  <div onClick={_testBind(foo, this)} />;
+  <React.Component onClick={_testBind(foo, this)} />;
 })();"
 `;
 
@@ -937,7 +937,7 @@ import * as React from \\"react\\";
   const bindable = _testBind(test, null);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={bindable} />;
+  <React.Component onClick={bindable} />;
 
   return bindable;
 })();"
@@ -958,7 +958,7 @@ import React from \\"react\\";
   const bindable = _testBind(test, null, 1, 2);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={bindable} />;
+  <React.Component onClick={bindable} />;
 
   return bindable();
 })();"
@@ -996,7 +996,7 @@ import * as React from \\"react\\";
     const hoistable = _testBind(_testBBHoisted, this, a);
 
     // Use in JSXExpressionContainer to enable hoisting
-    <div onClick={hoistable} />;
+    <React.Component onClick={hoistable} />;
   }
 })();"
 `;
@@ -1017,7 +1017,7 @@ import * as React from \\"react\\";
   const hoistMeWithoutFlowIdentifiers = _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistMeWithoutFlowIdentifiers} />;
+  <React.Component onClick={hoistMeWithoutFlowIdentifiers} />;
 
   return hoistMeWithoutFlowIdentifiers();
 })();"
@@ -1042,7 +1042,23 @@ import * as React from \\"react\\";
   const hoistMeWithoutFlowIdentifiers = _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistMeWithoutFlowIdentifiers} />;
+  <React.Component onClick={hoistMeWithoutFlowIdentifiers} />;
+})();"
+`;
+
+exports[`reflective-bind babel transform jsxHtmlLiteral.jsx 1`] = `
+"// @flow
+
+import * as React from \\"react\\";
+
+(function () {
+  // Should not hoist because the callback is attached to a html literal, and
+  // not a component.
+  const shouldNotHoist = () => {
+    return 1;
+  };
+
+  <div onClick={shouldNotHoist} />;
 })();"
 `;
 
@@ -1068,7 +1084,7 @@ import * as React from \\"react\\";
   const shouldNotHoist = () => {};
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 })();"
 `;
 
@@ -1100,7 +1116,7 @@ function foo() {}
   fn = _testBind(_testBBHoisted2, this, a);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={fn} />;
+  <React.Component onClick={fn} />;
 })();"
 `;
 
@@ -1113,7 +1129,7 @@ import * as React from \\"react\\";
   const shouldNotHoist = () => shouldNotHoist();
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 })();"
 `;
 
@@ -1152,7 +1168,7 @@ import * as React from \\"react\\";
           const hoistable = _testBind(_testBBHoisted, this, w);
 
           // Use in JSXExpressionContainer to enable hoisting
-          <div onClick={hoistable} />;
+          <React.Component onClick={hoistable} />;
 
           break;
         }
@@ -1179,7 +1195,7 @@ function foo() {}
   const fn = condition ? _testBind(foo, null) : _testBind(_testBBHoisted, this);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={fn} />;
+  <React.Component onClick={fn} />;
 })();"
 `;
 
@@ -1200,6 +1216,6 @@ function foo() {}
   const condition = true;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={condition ? _testBind(foo, null) : _testBind(_testBBHoisted, this)} />;
+  <React.Component onClick={condition ? _testBind(foo, null) : _testBind(_testBBHoisted, this)} />;
 })();"
 `;

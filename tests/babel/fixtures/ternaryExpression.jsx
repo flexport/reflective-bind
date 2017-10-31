@@ -9,5 +9,5 @@ function foo() {}
   const fn = condition ? foo.bind(null) : () => 1;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={fn} />;
+  <React.Component onClick={fn} />;
 })();

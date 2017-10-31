@@ -11,7 +11,7 @@ import React from "react";
   const bindable = test.bind(null, 1, 2);
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={bindable} />;
+  <React.Component onClick={bindable} />;
 
   return bindable();
 })();

@@ -5,11 +5,11 @@ import * as React from "react";
 (function() {
   // Inline arrow fn in JSXExpressionContainer should be hoisted.
   // Nested arrow fn should also be hoisted.
-  <div
+  <React.Component
     onClick={() => {
-      <div
+      <React.Component
         onClick={() => {
-          <div />;
+          <React.Component />;
         }}
       />;
     }}

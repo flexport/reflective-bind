@@ -15,5 +15,5 @@ function foo() {}
   fn = () => a;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={fn} />;
+  <React.Component onClick={fn} />;
 })();

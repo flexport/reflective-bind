@@ -19,7 +19,7 @@ import * as React from "react";
   a = 10;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={shouldNotHoist} />;
+  <React.Component onClick={shouldNotHoist} />;
 
   return shouldNotHoist();
 })();

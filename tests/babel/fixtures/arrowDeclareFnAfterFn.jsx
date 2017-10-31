@@ -8,7 +8,7 @@ import * as React from "react";
   const hoistable = () => fn;
 
   // Use in JSXExpressionContainer to enable hoisting
-  <div onClick={hoistable} />;
+  <React.Component onClick={hoistable} />;
 
   function fn() {}
 })();
