@@ -3,11 +3,11 @@
 
 # Reflective Bind
 
-In React, using inline functions (arrow functions and `Function.prototype.bind`) in render will [cause pure components to wastefully re-render]((https://flexport.engineering/optimizing-react-rendering-part-1-9634469dca02)). As a result, many React developers encourage you to [never use inline functions](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-no-bind.md) in render. However, others think that [avoiding them is premature optimization](https://cdb.reacttraining.com/react-inline-functions-and-performance-bdff784f5578).
-
-With reflective-bind, you can freely use inline functions in render without worrying about wasteful re-rendering of pure components.
+With reflective-bind, you can freely use inline functions in render without worrying about wasteful re-rendering of React pure components.
 
 The best part is, it requires almost no code change 🙌
+
+[Read more about it here](https://flexport.engineering/ending-the-debate-on-inline-functions-in-react-8c03fabd144)
 
 ## Installation
 
