@@ -846,14 +846,27 @@ exports[`reflective-bind babel transform arrowTopLevel.jsx 1`] = `
 
 import { babelBind as _testBind } from \\"../../src\\";
 
-function _testBBHoisted() {}
+function _testBBHoisted(a) {
+  return a;
+}
 
 import * as React from \\"react\\";
 
-const hoistable = _testBind(_testBBHoisted, this);
+// Should not hoist because arrow function is already at the top level.
+const shouldNotHoist = a => {
+  return a;
+};
+
+{
+  // Hoistable because it is in a different scope than the top level.
+  const hoistable = _testBind(_testBBHoisted, this);
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <React.Component onClick={hoistable} />;
+}
 
 // Use in JSXExpressionContainer to enable hoisting
-<React.Component onClick={hoistable} />;"
+<React.Component onClick={shouldNotHoist} />;"
 `;
 
 exports[`reflective-bind babel transform arrowWithFlow.jsx 1`] = `

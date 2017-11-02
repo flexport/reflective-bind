@@ -155,6 +155,13 @@ module.exports = function(opts) {
   }
 
   function processArrowFunctionExpression(path) {
+    // Don't hoist if the arrow function is top level (defined in the same
+    // scope as the hoist path) since that is where it's going to be hoisted
+    // to anyways.
+    if (path.parentPath.scope === _hoistPath.scope) {
+      return;
+    }
+
     const state = {
       fnPath: path,
       canHoist: true,
