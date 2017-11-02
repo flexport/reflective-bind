@@ -1133,6 +1133,20 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform refCallback.jsx 1`] = `
+"// @flow
+
+import * as React from \\"react\\";
+
+(function () {
+  // Should not hoist callbacks attached to the \`ref\` prop.
+  const shouldNotHoist = e => {};
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <React.Component ref={shouldNotHoist} />;
+})();"
+`;
+
 exports[`reflective-bind babel transform renameIdentifier.jsx 1`] = `
 "// @flow
 

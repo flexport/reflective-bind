@@ -103,6 +103,13 @@ module.exports = function(opts) {
       }
     },
 
+    JSXAttribute(path) {
+      // Don't transform ref callbacks
+      if (t.isJSXIdentifier(path.node.name) && path.node.name.name === "ref") {
+        path.skip();
+      }
+    },
+
     JSXExpressionContainer(path) {
       const exprPath = path.get("expression");
       if (t.isIdentifier(exprPath)) {

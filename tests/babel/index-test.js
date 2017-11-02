@@ -117,6 +117,7 @@ const EVAL_RESULTS = {
   "noTransform.jsx": undefined,
   "reassignIdentifier.jsx": undefined,
   "recursive.jsx": undefined,
+  "refCallback.jsx": undefined,
   "renameIdentifier.jsx": undefined,
   "ternaryExpression.jsx": undefined,
   "ternaryExpressionInline.jsx": undefined,
