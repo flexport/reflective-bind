@@ -25,7 +25,7 @@ Add it to the top of your plugin list in `.babelrc` (it must be run before other
 
 ```
 "plugins": [
-  "reflective-bind/babel",
+  ["reflective-bind/babel", {log: "debug"}],
   ...
 ]
 ```
@@ -63,7 +63,18 @@ If you do not want the babel plugin to process a specific file, add the followin
 // @no-reflective-bind-babel
 ```
 
+### Plugin options
+
+#### log (*default: off*)
+
+Specifies the minimum level of logs to output to the console. Enabling logging at a given level also enables logging at all higher levels.
+- **debug** - output messages useful for debugging (e.g. which functions are transformed).
+- **info** - output helpful information (e.g. optimization tips).
+- **warn** - output warnings (e.g. which functions cannot be transformed). These can usually be fixed with some simple refactoring.
+- **off** - disable logging. Recommended for production.
+
 ### Dependencies
+
 The babel plugin will add ES6 import declarations to your code. This shouldn’t be an issue if you’re using using `babel-preset-env` or `babel-preset-es2015`, but just make sure that some plugin/preset can transform the import declarations to your needs.
 
 ### What the plugin does

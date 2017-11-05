@@ -40,17 +40,20 @@
 
 // NOTE: this file written to run directly in node without being transpiled
 
+const logger = require("./utils/logger");
+
 const SKIP_RE = /^\/\/ @no-reflective-bind-babel$/m;
 
 module.exports = function(opts) {
   const t = opts.types;
 
+  let _filename;
   let _hoistedSlug;
   let _bableBindIdentifer;
   let _babelBindImportDeclaration;
 
   let _hoistPath;
-  let _needImport = false;
+  let _totalTransformedInAllFiles = 0;
 
   const rootVisitor = {
     // TODO: figure out how to not do the explicit recursive traversal.
@@ -60,6 +63,8 @@ module.exports = function(opts) {
       path,
       {
         opts: {
+          log = "off",
+
           // Hoisted function name prefix
           hoistedSlug = "rbHoisted",
           // Identifier name to assign the imported babelBind to
@@ -73,6 +78,8 @@ module.exports = function(opts) {
       if (SKIP_RE.test(file.code)) {
         return;
       }
+      logger.setLevel(log);
+      _filename = file.opts.filename;
       _hoistPath = path;
       _hoistedSlug = hoistedSlug;
       _bableBindIdentifer = _hoistPath.scope.generateUidIdentifier(
@@ -83,11 +90,18 @@ module.exports = function(opts) {
         t.stringLiteral(indexModule)
       );
 
-      path.traverse(visitor);
+      const state = {
+        numTransformed: 0,
+      };
+      path.traverse(visitor, state);
 
-      if (_needImport) {
+      if (state.numTransformed > 0) {
         addImport();
-        _needImport = false;
+
+        _totalTransformedInAllFiles += state.numTransformed;
+        logger.debug(
+          `Total inline functions transformed: ${_totalTransformedInAllFiles}`
+        );
       }
     },
   };
@@ -116,49 +130,50 @@ module.exports = function(opts) {
       }
     },
 
-    JSXExpressionContainer(path) {
+    JSXExpressionContainer(path, state) {
       const exprPath = path.get("expression");
       if (t.isIdentifier(exprPath)) {
         const binding = exprPath.scope.getBinding(exprPath.node.name);
         if (!binding) {
           return;
         }
-        processPath(binding.path);
+        processPath(binding.path, state);
 
         // constantViolations are just assignments to the variable after the
         // initial binding. We want to hoist all potential arrow functions that
         // are assigned to the variable.
         for (let i = 0, n = binding.constantViolations.length; i < n; i++) {
-          processPath(binding.constantViolations[i]);
+          processPath(binding.constantViolations[i], state);
         }
       } else {
-        processPath(exprPath);
+        processPath(exprPath, state);
       }
     },
   };
 
-  function processPath(path) {
+  function processPath(path, state) {
     if (t.isVariableDeclarator(path)) {
-      processPath(path.get("init"));
+      processPath(path.get("init"), state);
     } else if (t.isAssignmentExpression(path)) {
-      processPath(path.get("right"));
+      processPath(path.get("right"), state);
     } else if (t.isConditionalExpression(path)) {
-      processPath(path.get("consequent"));
-      processPath(path.get("alternate"));
+      processPath(path.get("consequent"), state);
+      processPath(path.get("alternate"), state);
     } else if (t.isCallExpression(path)) {
-      processCallExpression(path);
+      processCallExpression(path, state);
     } else if (t.isArrowFunctionExpression(path)) {
-      processArrowFunctionExpression(path);
+      processArrowFunctionExpression(path, state);
     }
   }
 
-  function processCallExpression(path) {
+  function processCallExpression(path, rootState) {
     if (
       t.isMemberExpression(path.node.callee) &&
       !path.node.callee.computed &&
       t.isIdentifier(path.node.callee.property, {name: "bind"})
     ) {
-      _needImport = true;
+      rootState.numTransformed++;
+      logger.debug(makeMsg("Transformed call to 'bind'", path));
       path.replaceWith(
         callReflectiveBindExpression(
           path.node.callee.object,
@@ -168,7 +183,7 @@ module.exports = function(opts) {
     }
   }
 
-  function processArrowFunctionExpression(path) {
+  function processArrowFunctionExpression(path, rootState) {
     // Don't hoist if the arrow function is top level (defined in the same
     // scope as the hoist path) since that is where it's going to be hoisted
     // to anyways.
@@ -189,7 +204,9 @@ module.exports = function(opts) {
     if (!state.canHoist) {
       return;
     }
-    _needImport = true;
+
+    rootState.numTransformed++;
+    logger.debug(makeMsg("Transformed arrow function", path));
 
     // Convert member expressions that start with `this` into arguments and
     // bind them with reflective bind. This makes sure our hoisted function is
@@ -304,6 +321,13 @@ module.exports = function(opts) {
         }));
 
     if (!state.canHoist) {
+      logger.warn(
+        makeMsg(
+          `Cannot transform arrow function because the variable '${path.node
+            .name}' is assigned to after the arrow function definition.`,
+          path
+        )
+      );
       // This line unfortunately only stops traversing the visitor keys of the
       // parent node, but ideally here it would stop the entire arrowFnVisitor
       // traversal.
@@ -598,6 +622,11 @@ module.exports = function(opts) {
       _hoistPath.node.body[0].leadingComments = undefined;
     }
     _hoistPath.unshiftContainer("body", node);
+  }
+
+  function makeMsg(msg, path) {
+    const start = path.node.loc.start;
+    return `${msg} (${_filename} ${start.line}:${start.column})`;
   }
 
   return {visitor: rootVisitor};
