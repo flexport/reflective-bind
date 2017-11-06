@@ -234,7 +234,10 @@ module.exports = function(opts) {
 
   const arrowFnVisitor = {
     Identifier(path, state) {
-      arrowFnIdentifier(path, state);
+      const hoisted = arrowFnIdentifier(path, state);
+      if (hoisted) {
+        validateNestedPropertyAccessInArrowFn(path);
+      }
     },
 
     JSXIdentifier(path, state) {
@@ -249,9 +252,8 @@ module.exports = function(opts) {
       }
 
       // Restrict `this` hoisting to only accesses to `this.(props|state)` and
-      // `this.(props|state).attr`. We don't support hoisting deep attribute
-      // access (e.g. this.props.attr.nested.deepNested becomes
-      // `_temp.nested.deepNested`).
+      // `this.(props|state).value`. We don't support hoisting deep property
+      // access (e.g. this.props.value.nested becomes `_temp.nested`).
       const parentPath = path.parentPath;
       if (
         !parentPath ||
@@ -278,6 +280,8 @@ module.exports = function(opts) {
           ? grandparentPath
           : parentPath;
 
+      validateNestedPropertyAccessInArrowFn(memberExpressionPath);
+
       state.thisUsagePaths.push(memberExpressionPath);
     },
 
@@ -286,17 +290,18 @@ module.exports = function(opts) {
     },
   };
 
+  // Returns true if the identifier needs to be hoisted.
   function arrowFnIdentifier(path, state) {
     // Ideally, we wouldn't need this check, but in babel 6.24.1 path.stop()
     // does not actually stop the entire traversal, only the traversal of the
     // remaining visitor keys of the parent node.
     if (!state.canHoist) {
       path.stop();
-      return;
+      return false;
     }
     const binding = getHoistableBinding(path, state.fnPath.scope);
     if (!binding) {
-      return;
+      return false;
     }
     state.canHoist =
       // Since we have determined that this identifier is bound outside the
@@ -332,8 +337,10 @@ module.exports = function(opts) {
       // parent node, but ideally here it would stop the entire arrowFnVisitor
       // traversal.
       path.stop();
+      return false;
     } else {
       state.outerIdentifierNames.add(path.node.name);
+      return true;
     }
   }
 
@@ -622,6 +629,96 @@ module.exports = function(opts) {
       _hoistPath.node.body[0].leadingComments = undefined;
     }
     _hoistPath.unshiftContainer("body", node);
+  }
+
+  /**
+   * TODO: move this blob of text out to the docs and link to it.
+   * 
+   * Checks if the path is part of a nested property access.
+   * This means that it is of the form `pathNode.foo`.
+   * 
+   * We want to encourage developers to manually hoist these nested propery
+   * accesses out to constant variables to reduce wasted re-renders because
+   * we only extract the leftmost object as the argument to the hoisted
+   * function.
+   * 
+   * For example:
+   *   const obj = {...};
+   *   const handleClick = () => this.setState({foo: obj.a.b.c});
+   * 
+   * Is transformed to:
+   *   function _hoisted(obj) {
+   *     this.setState(foo: obj.a.b.c);
+   *   }
+   *   ...
+   *   const obj = {...};
+   *   const handleClick = babelBind(_hoisted, this, obj);
+   * 
+   * In this case, the handleClick function will not be reflectively equal
+   * whenever the `obj` references changes. It is better for the user to
+   * extract the value out to a constant:
+   *   const obj = {...};
+   *   const c = obj.a.b.c;
+   *   const handleClick = () => this.setState({foo: c});
+   * 
+   * This is transformed to:
+   *   function _hoisted(c) {
+   *     this.setState(foo: c);
+   *   }
+   *   ...
+   *   const obj = {...};
+   *   const c = obj.a.b.c;
+   *   const handleClick = babelBind(_hoisted, this, c);
+   * 
+   * Which will be reflectively equal as long as c doesn't change value, even
+   * if the `obj` reference changes.
+   * 
+   * Note that `pathNode.foo()` is ok because pulling `pathNode.foo` out and
+   * calling `foo()` on its own does not result in the right context within
+   * the function.
+   */
+  function validateNestedPropertyAccessInArrowFn(path) {
+    if (
+      path &&
+      path.parentPath &&
+      t.isMemberExpression(path.parentPath.node) &&
+      path.parentPath.parentPath &&
+      !t.isCallExpression(path.parentPath.parentPath.node)
+    ) {
+      const nodeStr = nodeToString(path.parentPath.node);
+      logger.info(
+        makeMsg(
+          `Accessing nested property '${nodeStr}'. Consider pulling the nested property value out to a constant and closing over the constant.`,
+          path
+        )
+      );
+    }
+  }
+
+  function nodeToString(node) {
+    if (!node) {
+      return;
+    }
+    if (t.isNullLiteral(node)) {
+      // Must come before isLiteral
+      return "null";
+    } else if (t.isLiteral(node)) {
+      return node.extra.raw;
+    } else if (t.isIdentifier(node)) {
+      return node.name;
+    } else if (t.isThisExpression(node)) {
+      return "this";
+    } else if (t.isMemberExpression(node)) {
+      const objectStr = nodeToString(node.object);
+      const propertyStr = nodeToString(node.property);
+      return node.computed
+        ? `${objectStr}[${propertyStr}]`
+        : `${objectStr}.${propertyStr}`;
+    } else if (t.isCallExpression(node)) {
+      const argsStr = node.arguments.map(nodeToString).join(", ");
+      return `${nodeToString(node.callee)}(${argsStr})`;
+    }
+    return `__${node.type}__`;
   }
 
   function makeMsg(msg, path) {

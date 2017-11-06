@@ -4,6 +4,9 @@ import {transformFileSync} from "babel-core";
 import fs from "fs";
 import path from "path";
 import plugin from "../../babel";
+import logger from "../../babel/utils/logger";
+
+jest.mock("../../babel/utils/logger");
 
 // Hoisted function name prefix
 const HOISTED_SLUG = "testBBHoisted";
@@ -15,6 +18,7 @@ const INDEX_MODULE = "../../src";
 const TARGET_PLUGIN = [
   plugin,
   {
+    log: "debug",
     hoistedSlug: HOISTED_SLUG,
     babelBindSlug: BABEL_BIND_IDENTIFIER_NAME,
     indexModule: INDEX_MODULE,
@@ -35,7 +39,15 @@ const VALIDATE_TRANSFORM_OPTS = {
   plugins: [TARGET_PLUGIN, "transform-flow-comments"],
 };
 
+const NESTED_PROPERTY_RE = /^Accessing nested property.*/;
+
 describe("reflective-bind babel transform", () => {
+  beforeEach(() => {
+    logger.debug.mockClear();
+    logger.info.mockClear();
+    logger.warn.mockClear();
+  });
+
   const fixturesDir = path.join(__dirname, "fixtures");
   fs.readdirSync(fixturesDir).forEach(filename => {
     it(filename, () => {
@@ -49,6 +61,8 @@ describe("reflective-bind babel transform", () => {
       );
       expect(snapshotCode).toMatchSnapshot();
 
+      validateNestedPropertyLogs(filename);
+
       const {code: validationCode} = transformFileSync(
         filePath,
         VALIDATE_TRANSFORM_OPTS
@@ -57,6 +71,21 @@ describe("reflective-bind babel transform", () => {
     });
   });
 });
+
+const NESTED_PROPERTY_COUNTS = {
+  "arrowComputedProperty.jsx": 1,
+  "arrowStatelessComponentProps.jsx": 1,
+  "arrowThisCallExpression.jsx": 1,
+  "arrowThisProps.jsx": 1,
+  "arrowThisState.jsx": 1,
+};
+
+function validateNestedPropertyLogs(filename) {
+  const logCalls = logger.info.mock.calls.filter(c =>
+    NESTED_PROPERTY_RE.test(c[0])
+  );
+  expect(logCalls.length).toBe(NESTED_PROPERTY_COUNTS[filename] || 0);
+}
 
 // To not expect a result from a test case, explicitly set the value to
 // 'undefined'. This is to make sure that a typo in a filename won't lead to no
