@@ -93,6 +93,7 @@ const EVAL_RESULTS = {
   "arrowThisState.jsx": undefined,
   "arrowTopLevel.jsx": undefined,
   "arrowWithFlow.jsx": 10,
+  "bindComputed.jsx": undefined,
   "bindFlow.jsx": 3,
   "bindInlineJsxContainerElement.jsx": undefined,
   "bindNonFunction.jsx": 99,

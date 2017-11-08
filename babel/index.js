@@ -12,10 +12,10 @@
  *     `babelBind(expression, ...bindArgs)`
  *
  * Arrow Functions
- *   - Bail if function closes over any non-constant variables. Since the
- *     variable is non-constant, it is very difficult to determine what values
- *     to bind the variables to after hoisting. You'd have to find all the call
- *     sites, and bind right before the call.
+ *   - Bail if function closes over any variables that are assigned to after
+ *     the fn definition. If we transformed the arrow function in this case,
+ *     we would either get a reference error, or we would bind to the wrong
+ *     value.
  *   - Bail if the function closes over a variable that is bound after it.
  *     Since we replace the function call with a call to `babelBind` and pass 
  *     in the closed over variables, it would result in an reference error. 
@@ -46,10 +46,11 @@ module.exports = function(opts) {
   const t = opts.types;
 
   let _hoistedSlug;
-  let _hoistPath;
-  let _needImport = false;
   let _bableBindIdentifer;
   let _babelBindImportDeclaration;
+
+  let _hoistPath;
+  let _needImport = false;
 
   const rootVisitor = {
     // TODO: figure out how to not do the explicit recursive traversal.
@@ -154,6 +155,7 @@ module.exports = function(opts) {
   function processCallExpression(path) {
     if (
       t.isMemberExpression(path.node.callee) &&
+      !path.node.callee.computed &&
       t.isIdentifier(path.node.callee.property, {name: "bind"})
     ) {
       _needImport = true;
