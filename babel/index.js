@@ -17,8 +17,8 @@
  *     we would either get a reference error, or we would bind to the wrong
  *     value.
  *   - Bail if the function closes over a variable that is bound after it.
- *     Since we replace the function call with a call to `babelBind` and pass 
- *     in the closed over variables, it would result in an reference error. 
+ *     Since we replace the function call with a call to `babelBind` and pass
+ *     in the closed over variables, it would result in an reference error.
  *   - Otherwise, hoist the arrow function to module level function and replace
  *     the arrow function with: `babelBind(hoisted, this, ...constants)`,
  *     where `constants` is a list of all the constant variables that the
@@ -435,6 +435,16 @@ module.exports = function(opts) {
       );
     }
 
+    // If the check path is inside a function, it may be called after
+    for (let i = 1; i < checkPathAncestorIdx; i++) {
+      if (
+        t.isArrowFunctionExpression(checkPathAncestry[i]) ||
+        t.isFunctionDeclaration(checkPathAncestry[i])
+      ) {
+        return false;
+      }
+    }
+
     // If both relationshps are part of a container list, the key property
     // gives you the index in the container.
     if (checkPathRelationship.listKey && otherPathRelationship.listKey) {
@@ -500,7 +510,7 @@ module.exports = function(opts) {
 
   /**
    * Returns true only if path has the same `this` context as parentPath.
-   * 
+   *
    * This means that the function-ancestor chain must only consist of arrow
    * functions.
    */

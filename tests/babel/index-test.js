@@ -82,6 +82,8 @@ const EVAL_RESULTS = {
   "arrowReferenceOkAssignment.jsx": 10,
   "arrowReferenceOkAssignmentDifferentScope.jsx": 10,
   "arrowReferenceReassignmentInFn.jsx": 10,
+  "arrowReferenceReassignmentInOtherArrowFn.jsx": 1,
+  "arrowReferenceReassignmentInOtherFn.jsx": 1,
   "arrowRedeclareVar.jsx": 2,
   "arrowRedeclareVarAfterFn.jsx": 2,
   "arrowRestSpread.jsx": 10,
