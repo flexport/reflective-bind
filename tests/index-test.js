@@ -247,6 +247,16 @@ describe("reflectiveEqual", () => {
     expect(reflectiveEqual(x, y)).toBe(true);
   });
 
+  it("returns true when base fn is the same and args are different but reflectively equal", () => {
+    const foo = x => x;
+    const arg1 = reflectiveBind(foo, null, 1);
+    const arg2 = reflectiveBind(foo, null, 1);
+    const base = y => y;
+    const x = reflectiveBind(base, null, arg1);
+    const y = reflectiveBind(base, null, arg2);
+    expect(reflectiveEqual(x, y)).toBe(true);
+  });
+
   it("returns false when reflective binding a reflective bound fn with different args", () => {
     const baseX = reflectiveBind(foo, null, 1);
     const baseY = reflectiveBind(foo, null, 1);

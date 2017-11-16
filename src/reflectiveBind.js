@@ -1,7 +1,5 @@
 // @flow
 
-import arrayShallowEq from "./arrayShallowEq";
-
 /**
  * reflectiveBind is an augmented version of Function.prototype.bind that
  * remembers the function and arguments that it was called with so that it is
@@ -167,7 +165,7 @@ export function reflectiveEqual(f: mixed, g: mixed) {
   if (rf != null && rg != null) {
     return (
       rf.__ctx === rg.__ctx &&
-      arrayShallowEq(rf.__args, rg.__args) &&
+      arrayShallowReflectiveEq(rf.__args, rg.__args) &&
       (rf.__func === rg.__func || reflectiveEqual(rf.__func, rg.__func))
     );
   } else {
@@ -197,4 +195,19 @@ function toReflective(f: mixed): ?Reflective {
   } else {
     return null;
   }
+}
+
+function arrayShallowReflectiveEq(a: Array<mixed>, b: Array<mixed>) {
+  if (a === b) {
+    return true;
+  }
+  if (a.length === b.length) {
+    for (let i = 0, n = a.length; i < n; i++) {
+      if (a[i] !== b[i] && !reflectiveEqual(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
 }
