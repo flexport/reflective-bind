@@ -188,6 +188,9 @@ module.exports = function(opts) {
     // scope as the hoist path) since that is where it's going to be hoisted
     // to anyways.
     if (path.parentPath.scope === _hoistPath.scope) {
+      logger.debug(
+        makeMsg("Skipping arrow function defined in the outermost scope", path)
+      );
       return;
     }
 
