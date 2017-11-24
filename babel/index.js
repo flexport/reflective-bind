@@ -435,12 +435,10 @@ module.exports = function(opts) {
       );
     }
 
-    // If the check path is inside a function, it may be called after
+    // If the checkPath is inside a function, it might be called after
+    // otherPath has executed.
     for (let i = 1; i < checkPathAncestorIdx; i++) {
-      if (
-        t.isArrowFunctionExpression(checkPathAncestry[i]) ||
-        t.isFunctionDeclaration(checkPathAncestry[i])
-      ) {
+      if (t.isFunction(checkPathAncestry[i])) {
         return false;
       }
     }
