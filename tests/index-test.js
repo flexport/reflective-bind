@@ -247,6 +247,43 @@ describe("reflectiveEqual", () => {
     expect(reflectiveEqual(x, y)).toBe(true);
   });
 
+  it("returns true when base fn is the same and args are different but reflectively equal", () => {
+    const foo = x => x;
+    const arg1 = reflectiveBind(foo, null, 1);
+    const arg2 = reflectiveBind(foo, null, 1);
+    const base = y => y;
+    const x = reflectiveBind(base, null, arg1);
+    const y = reflectiveBind(base, null, arg2);
+    expect(reflectiveEqual(x, y)).toBe(true);
+  });
+
+  it("returns true when base fn is the same and function args are the same instance", () => {
+    const foo = x => x;
+    const base = y => y;
+    const x = reflectiveBind(base, null, foo);
+    const y = reflectiveBind(base, null, foo);
+    expect(reflectiveEqual(x, y)).toBe(true);
+  });
+
+  it("returns false when base fn is the same and function args are not reflectively equal", () => {
+    const foo = x => x;
+    const arg1 = reflectiveBind(foo, null, 1);
+    const arg2 = reflectiveBind(foo, {}, 1);
+    const base = y => y;
+    const x = reflectiveBind(base, null, arg1);
+    const y = reflectiveBind(base, null, arg2);
+    expect(reflectiveEqual(x, y)).toBe(false);
+  });
+
+  it("returns false when base fn is the same and object args are deeply equal but not the same instance", () => {
+    const arg1 = {a: { b: 1}};
+    const arg2 = {a: { b: 1}};
+    const base = x => x;
+    const x = reflectiveBind(base, null, arg1);
+    const y = reflectiveBind(base, null, arg2);
+    expect(reflectiveEqual(x, y)).toBe(false);
+  });
+
   it("returns false when reflective binding a reflective bound fn with different args", () => {
     const baseX = reflectiveBind(foo, null, 1);
     const baseY = reflectiveBind(foo, null, 1);
