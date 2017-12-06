@@ -295,7 +295,7 @@ module.exports = function(opts) {
       //     const test = _babelBind(_bbHoisted, this, a); // REFERENCE ERROR!
       //     const a = 1;
       // We must detect this case, and prevent the hoisting from happening.
-      isBindingDefinitelyBeforePath(binding, state.fnPath) &&
+      isPathDefinitelyBeforeOtherPath(binding.path, state.fnPath) &&
       // For all constantViolations, we have to make sure they also come
       // before the fnPath, otherwise we will bind to the wrong value.
       (binding.constant ||
@@ -361,32 +361,6 @@ module.exports = function(opts) {
     throw new Error(
       "identifier has no valid binding and limitScope is not an ancestor scope"
     );
-  }
-
-  function isBindingDefinitelyBeforePath(binding, path) {
-    const isBindingFnDeclaration = t.isFunctionDeclaration(binding.path);
-    /* istanbul ignore if */
-    if (isBindingFnDeclaration && binding.identifier !== binding.path.node.id) {
-      throw new Error(
-        "binding identifier does not match the function declaration id"
-      );
-    }
-
-    // If the binding is a function declaration (e.g. function foo() {}),
-    // binding.path.scope will get you the scope of the actual function, not
-    // the scope the binding is created in. Need to do
-    // binding.path.parentPath.scope instead.
-    const bscope = isBindingFnDeclaration
-      ? binding.path.parentPath.scope
-      : binding.path.scope;
-    /* istanbul ignore if */
-    if (bscope !== path.scope && !isAncestorScope(bscope, path.scope)) {
-      throw new Error(
-        "binding's scope must be equal to or is an ancestor of the path's scope"
-      );
-    }
-
-    return isPathDefinitelyBeforeOtherPath(binding.path, path);
   }
 
   // Returns true iff we are 100% sure checkPath is executed before otherPath.
@@ -477,20 +451,6 @@ module.exports = function(opts) {
       throw new Error(`Invalid otherPathPosition ${otherPathPosition}`);
     }
     return checkPathPosition < otherPathPosition;
-  }
-
-  // Returns true iff maybeAncestorScope is an ancestor of startScope.
-  // A scope is not an ancestor of itself:
-  //   isAncestor(someScope, someScope) === false
-  function isAncestorScope(maybeAncestorScope, startScope) {
-    let curScope = startScope.parent;
-    while (curScope) {
-      if (maybeAncestorScope === curScope) {
-        return true;
-      }
-      curScope = curScope.parent;
-    }
-    return false;
   }
 
   // Return the indices in the ancestor arrays of where the common ancestor

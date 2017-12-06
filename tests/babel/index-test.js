@@ -101,6 +101,7 @@ const EVAL_RESULTS = {
   "bindNonFunction.jsx": 99,
   "bindSimple.jsx": 3,
   "bindingNodeLocNPE.jsx": undefined,
+  "classReference.jsx": undefined,
   "flowGenerics.jsx": 6,
   "flowObjMap.jsx": undefined,
   "fnAsync.jsx": undefined,

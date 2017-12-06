@@ -1079,6 +1079,31 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform classReference.jsx 1`] = `
+"// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted(Foo) {
+  return Foo;
+}
+
+import * as React from \\"react\\";
+
+// Regression test.
+// Referencing a class was causing the \\"binding's scope must be equal to or is
+// an ancestor of the path's scope\\" error to trigger.
+
+(function () {
+  class Foo {}
+
+  const hoistable = _testBind(_testBBHoisted, this, Foo);
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <React.Component onClick={hoistable} />;
+})();"
+`;
+
 exports[`reflective-bind babel transform flowGenerics.jsx 1`] = `
 "// @flow
 
