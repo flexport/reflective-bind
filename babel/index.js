@@ -47,6 +47,7 @@ const SKIP_RE = /^\/\/ @no-reflective-bind-babel$/m;
 module.exports = function(opts) {
   const t = opts.types;
 
+  let _propRegex;
   let _filename;
   let _hoistedSlug;
   let _bableBindIdentifer;
@@ -64,6 +65,7 @@ module.exports = function(opts) {
       {
         opts: {
           log = "off",
+          propRegex = undefined,
 
           // Hoisted function name prefix
           hoistedSlug = "rbHoisted",
@@ -79,6 +81,7 @@ module.exports = function(opts) {
         return;
       }
       logger.setLevel(log);
+      _propRegex = propRegex != null ? new RegExp(propRegex) : undefined;
       _filename = file.opts.filename;
       _hoistPath = path;
       _hoistedSlug = hoistedSlug;
@@ -124,8 +127,10 @@ module.exports = function(opts) {
     },
 
     JSXAttribute(path) {
-      // Don't transform ref callbacks
-      if (t.isJSXIdentifier(path.node.name) && path.node.name.name === "ref") {
+      if (
+        t.isJSXIdentifier(path.node.name) &&
+        shouldSkipProp(path.node.name.name)
+      ) {
         path.skip();
       }
     },
@@ -150,6 +155,12 @@ module.exports = function(opts) {
       }
     },
   };
+
+  function shouldSkipProp(name) {
+    // - Skip "ref" props.
+    // - If _propRegex is provided, skip props that don't match.
+    return name === "ref" || (_propRegex && !_propRegex.test(name));
+  }
 
   function processPath(path, state) {
     if (t.isVariableDeclarator(path)) {
@@ -331,8 +342,9 @@ module.exports = function(opts) {
     if (!state.canHoist) {
       logger.warn(
         makeMsg(
-          `Cannot transform arrow function because the variable '${path.node
-            .name}' is assigned to after the arrow function definition.`,
+          `Cannot transform arrow function because the variable '${
+            path.node.name
+          }' is assigned to after the arrow function definition.`,
           path
         )
       );
@@ -644,19 +656,19 @@ module.exports = function(opts) {
 
   /**
    * TODO: move this blob of text out to the docs and link to it.
-   * 
+   *
    * Checks if the path is part of a nested property access.
    * This means that it is of the form `pathNode.foo`.
-   * 
+   *
    * We want to encourage developers to manually hoist these nested propery
    * accesses out to constant variables to reduce wasted re-renders because
    * we only extract the leftmost object as the argument to the hoisted
    * function.
-   * 
+   *
    * For example:
    *   const obj = {...};
    *   const handleClick = () => this.setState({foo: obj.a.b.c});
-   * 
+   *
    * Is transformed to:
    *   function _hoisted(obj) {
    *     this.setState(foo: obj.a.b.c);
@@ -664,14 +676,14 @@ module.exports = function(opts) {
    *   ...
    *   const obj = {...};
    *   const handleClick = babelBind(_hoisted, this, obj);
-   * 
+   *
    * In this case, the handleClick function will not be reflectively equal
    * whenever the `obj` references changes. It is better for the user to
    * extract the value out to a constant:
    *   const obj = {...};
    *   const c = obj.a.b.c;
    *   const handleClick = () => this.setState({foo: c});
-   * 
+   *
    * This is transformed to:
    *   function _hoisted(c) {
    *     this.setState(foo: c);
@@ -680,10 +692,10 @@ module.exports = function(opts) {
    *   const obj = {...};
    *   const c = obj.a.b.c;
    *   const handleClick = babelBind(_hoisted, this, c);
-   * 
+   *
    * Which will be reflectively equal as long as c doesn't change value, even
    * if the `obj` reference changes.
-   * 
+   *
    * Note that `pathNode.foo()` is ok because pulling `pathNode.foo` out and
    * calling `foo()` on its own does not result in the right context within
    * the function.

@@ -15,15 +15,14 @@ const BABEL_BIND_IDENTIFIER_NAME = "testBind";
 // Location of the main reflective-bind index file
 const INDEX_MODULE = "../../src";
 
-const TARGET_PLUGIN = [
-  plugin,
-  {
-    log: "debug",
-    hoistedSlug: HOISTED_SLUG,
-    babelBindSlug: BABEL_BIND_IDENTIFIER_NAME,
-    indexModule: INDEX_MODULE,
-  },
-];
+const PLUGIN_OPTS = {
+  log: "debug",
+  hoistedSlug: HOISTED_SLUG,
+  babelBindSlug: BABEL_BIND_IDENTIFIER_NAME,
+  indexModule: INDEX_MODULE,
+};
+
+const TARGET_PLUGIN = [plugin, PLUGIN_OPTS];
 
 const SNAPSHOT_TRANSFORM_OPTS = {
   babelrc: false,
@@ -57,7 +56,7 @@ describe("reflective-bind babel transform", () => {
       // looks like even if later assertions fail.
       const {code: snapshotCode} = transformFileSync(
         filePath,
-        SNAPSHOT_TRANSFORM_OPTS
+        CUSTOM_SNAPSHOT_OPTS[filename] || SNAPSHOT_TRANSFORM_OPTS
       );
       expect(snapshotCode).toMatchSnapshot();
 
@@ -144,6 +143,7 @@ const EVAL_RESULTS = {
   "fnSimple.jsx": 4,
   "fnTopLevel.jsx": undefined,
   "fnWithFlow.jsx": 4,
+  "ignorePropNameByRegex.jsx": undefined,
   "jsxHtmlLiteral.jsx": undefined,
   "mapArrow.jsx": undefined,
   "noTransform.jsx": undefined,
@@ -153,6 +153,21 @@ const EVAL_RESULTS = {
   "renameIdentifier.jsx": undefined,
   "ternaryExpression.jsx": undefined,
   "ternaryExpressionInline.jsx": undefined,
+};
+
+const CUSTOM_SNAPSHOT_OPTS = {
+  "ignorePropNameByRegex.jsx": {
+    ...SNAPSHOT_TRANSFORM_OPTS,
+    plugins: [
+      [
+        plugin,
+        {
+          ...PLUGIN_OPTS,
+          propRegex: "^on[A-Z].*$",
+        },
+      ],
+    ],
+  },
 };
 
 function validateResult(filename: string, code: string) {

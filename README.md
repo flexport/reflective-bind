@@ -19,7 +19,7 @@ npm install --save reflective-bind
 
 ## Using the babel plugin
 
-*NOTE: the design goal of the plugin is to preserve the semantics of your code. Your inline functions will still create new function instances each render. The transform simply enables the equality comparison of two function instances via reflection.*
+_NOTE: the design goal of the plugin is to preserve the semantics of your code. Your inline functions will still create new function instances each render. The transform simply enables the equality comparison of two function instances via reflection._
 
 Add it to the top of your plugin list in `.babelrc` (it must be run before other plugins that transform arrow functions and `bind` calls):
 
@@ -65,13 +65,20 @@ If you do not want the babel plugin to process a specific file, add the followin
 
 ### Plugin options
 
-#### log (*default: off*)
+#### propRegex (_default: transform all props_)
+
+When specified, only transform props whose name matches the regular expression. The intended use case is to avoid transforming render callbacks, as this can lead to stale render bugs.
+
+For example, if all of your non-render callbacks are prefixed with `on`, such as `onClick`, consider using `"propRegex": "^on[A-Z].*$"`.
+
+#### log (_default: off_)
 
 Specifies the minimum level of logs to output to the console. Enabling logging at a given level also enables logging at all higher levels.
-- **debug** - output messages useful for debugging (e.g. which functions are transformed).
-- **info** - output helpful information (e.g. optimization tips).
-- **warn** - output warnings (e.g. which functions cannot be transformed). These can usually be fixed with some simple refactoring.
-- **off** - disable logging. Recommended for production.
+
+* **debug** - output messages useful for debugging (e.g. which functions are transformed).
+* **info** - output helpful information (e.g. optimization tips).
+* **warn** - output warnings (e.g. which functions cannot be transformed). These can usually be fixed with some simple refactoring.
+* **off** - disable logging. Recommended for production.
 
 ### Dependencies
 
@@ -95,18 +102,18 @@ function baseFn(msg) {
 const fn1 = reflectiveBind(baseFn, undefined, "hello");
 const fn2 = reflectiveBind(baseFn, undefined, "hello");
 
-fn1 === fn2 // false
-reflectiveEqual(fn1, fn2) // true
+fn1 === fn2; // false
+reflectiveEqual(fn1, fn2); // true
 
 const fn3 = reflectiveBind(baseFn, undefined, "world");
-reflectiveEqual(fn1, fn3) // false
+reflectiveEqual(fn1, fn3); // false
 ```
 
 Note that `reflectiveEqual` only works for reflectively bound functions.
 
 ```js
-reflectiveEqual(1, 1) // false
-reflectiveEqual(baseFn, baseFn) // false
+reflectiveEqual(1, 1); // false
+reflectiveEqual(baseFn, baseFn); // false
 ```
 
 We also expose a `isReflective` helper function that lets you check if something is a reflectively bound function.
@@ -137,30 +144,30 @@ reflectiveBind(baseFn, ctx, a, b, c, d);
 
 The following are examples of some inline functions that will be transformed into calls to `reflectiveBind` by the babel plugin:
 
-- Inline arrow functions:
+* Inline arrow functions:
 
 ```jsx
 function MyComponent(props) {
   const msg = "Hello " + props.user.name.first;
-  return <PureChild onClick={() => alert(msg)} />
+  return <PureChild onClick={() => alert(msg)} />;
 }
 ```
 
-- `Function.prototype.bind`:
+* `Function.prototype.bind`:
 
 ```jsx
 function MyComponent(props) {
   const handleClick = props.callback.bind(undefined, "yay");
-  return <PureChild onClick={handleClick} />
+  return <PureChild onClick={handleClick} />;
 }
 ```
 
-- Multiple assignments / reassignments:
+* Multiple assignments / reassignments:
 
 ```jsx
 function MyComponent(props) {
   let handleClick = () => {...};
-  
+
   if (...) {
       handleClick = () => {...};
   } else if (...) {
@@ -171,7 +178,7 @@ function MyComponent(props) {
 }
 ```
 
-- Ternary expressions:
+* Ternary expressions:
 
 ```jsx
 function MyComponent(props) {
@@ -183,18 +190,17 @@ function MyComponent(props) {
 }
 ```
 
-- For maximum optimization, avoid accessing nested attributes in your arrow function. Prefer to pull the nested value out to a const and close over it in your arrow function.
+* For maximum optimization, avoid accessing nested attributes in your arrow function. Prefer to pull the nested value out to a const and close over it in your arrow function.
 
 ```jsx
 function MyComponent(props) {
-  
   // PureChild will re-render whenever `props` changes (bad)
-  const badHandleClick = () =>  alert(props.user.name.first);
-  
+  const badHandleClick = () => alert(props.user.name.first);
+
   const firstName = props.user.name.first;
   // Now, PureChild will only re-render when firstName changes (good)
   const goodHandleClick = () => alert(firstName);
-  
+
   return (
     <div>
       <PureChild onClick={badHandleClick} />
@@ -208,25 +214,25 @@ function MyComponent(props) {
 
 There are a few edge cases that can cause an arrow function to not be transformed. Nothing breaks, you just won’t have optimized code.
 
-- Your arrow function should not close over variables whose value is set after the arrow function.
+* Your arrow function should not close over variables whose value is set after the arrow function.
 
 ```jsx
 function MyComponent(props) {
   let foo = 1;
-  
+
   const badHandleClick = () => {
     // Referencing `foo`, which is reassigned after this arrow function, will
     // prevent this arrow function from being transformed.
     alert(foo);
   };
-  
+
   foo = 2;
 
-  return <PureChild onClick={badHandleClick} />
+  return <PureChild onClick={badHandleClick} />;
 }
 ```
 
-- Your arrow function must be defined inline the JSX, or at most 1 reference away.
+* Your arrow function must be defined inline the JSX, or at most 1 reference away.
 
 ```jsx
 function MyComponent(props) {
@@ -234,17 +240,17 @@ function MyComponent(props) {
   // directly in the JSX.
   const fn = () => {...};
   const badHandleClick = fn;
-                    
+
   // This arrow function will be transformed since `goodHandleClick` is
   // referenced directly in the JSX.
   const goodHandleClick = () => {...};
-                    
+
   return (
     <div>
       <PureChild onClick={badHandleClick} />
-      
+
       <PureChild onClick={goodHandleClick} />
-      
+
       {/* This will be optimized since it is defined directly in the JSX */}
       <PureChild onClick={() => {...}} />
     </div>
