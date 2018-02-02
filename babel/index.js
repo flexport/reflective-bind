@@ -47,7 +47,7 @@ const SKIP_RE = /^\/\/ @no-reflective-bind-babel$/m;
 module.exports = function(opts) {
   const t = opts.types;
 
-  let _propRegex;
+  let _propRegexCompiled;
   let _filename;
   let _hoistedSlug;
   let _bableBindIdentifer;
@@ -81,7 +81,8 @@ module.exports = function(opts) {
         return;
       }
       logger.setLevel(log);
-      _propRegex = propRegex != null ? new RegExp(propRegex) : undefined;
+      _propRegexCompiled =
+        propRegex != null ? new RegExp(propRegex) : undefined;
       _filename = file.opts.filename;
       _hoistPath = path;
       _hoistedSlug = hoistedSlug;
@@ -158,8 +159,10 @@ module.exports = function(opts) {
 
   function shouldSkipProp(name) {
     // - Skip "ref" props.
-    // - If _propRegex is provided, skip props that don't match.
-    return name === "ref" || (_propRegex && !_propRegex.test(name));
+    // - If _propRegexCompiled exists, skip props that don't match.
+    return (
+      name === "ref" || (_propRegexCompiled && !_propRegexCompiled.test(name))
+    );
   }
 
   function processPath(path, state) {
