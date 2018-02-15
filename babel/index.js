@@ -158,8 +158,6 @@ module.exports = function(opts) {
   };
 
   function shouldSkipProp(name) {
-    // - Skip "ref" props.
-    // - If _propRegexCompiled exists, skip props that don't match.
     return (
       name === "ref" || (_propRegexCompiled && !_propRegexCompiled.test(name))
     );
