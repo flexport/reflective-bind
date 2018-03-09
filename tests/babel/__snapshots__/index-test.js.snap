@@ -716,7 +716,7 @@ exports[`reflective-bind babel transform arrowThisCallExpression.jsx 1`] = `
 
 import { babelBind as _testBind } from \\"../../src\\";
 
-function _testBBHoisted(_temp, _temp2) {
+function _testBBHoisted(_temp, _temp2, _temp3, _temp4) {
   // The entire \`this.props.fn\` should be hoisted because we don't
   // expect that \`fn\` cares about the \`props\` being its context.
   _temp();
@@ -728,6 +728,13 @@ function _testBBHoisted(_temp, _temp2) {
   // Only \`this.props.nested\` should be pulled out since we don't hoist
   // deep attribute accesses.
   _temp2.deepNested.deepNestedFn();
+
+  // The entire \`this.props[\\"string.key.fn\\"]\` should be hoisted because we don't
+  // expect that \`\\"string.key.fn\\"\` cares about the \`props\` being its context.
+  _temp3();
+
+  // Using a second string function shouldn't fail. It should behave as the previous.
+  _temp4();
 }
 
 import React from \\"react\\";
@@ -735,7 +742,7 @@ import React from \\"react\\";
 (function () {
   return {
     foo() {
-      const hoistable = _testBind(_testBBHoisted, this, this.props.fn, this.props.nested);
+      const hoistable = _testBind(_testBBHoisted, this, this.props.fn, this.props.nested, this.props[\\"string.key.fn\\"], this.props[\\"another.string.key.fn\\"]);
 
       // Use in JSXExpressionContainer to enable hoisting
       <React.Component onClick={hoistable} />;
@@ -747,7 +754,9 @@ import React from \\"react\\";
         deepNested: {
           deepNestedFn: () => {}
         }
-      }
+      },
+      \\"string.key.fn\\": () => {},
+      \\"another.string.key.fn\\": () => {}
     }
   };
 })();"
