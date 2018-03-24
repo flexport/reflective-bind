@@ -43,13 +43,13 @@ class MyComponent extends React.Component {
 }
 ```
 
-If you’re already using `React.PureComponent` and want to avoid updating all of your components, consider monkey patching `shouldComponentUpdate` 🙊
+If you want to avoid updating all of your components, consider monkey patching `shouldComponentUpdate` 🙊
 
 ```js
 import React from "react";
 import {shouldComponentUpdate} from "reflective-bind";
 
-React.PureComponent.prototype.shouldComponentUpdate = function(
+React.Component.prototype.shouldComponentUpdate = function(
   nextProps,
   nextState
 ) {
