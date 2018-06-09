@@ -1107,6 +1107,29 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform duplicateComputedMemberExpressionStringArg.jsx 1`] = `
+"// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted(_temp) {
+  // There should only be one parameter in the hoisted function
+  _temp;
+  _temp;
+}
+
+import React from \\"react\\";
+
+class MyComponent extends React.Component<{| a: number |}> {
+  render() {
+    const hoistable = _testBind(_testBBHoisted, this, this.props[\\"a\\"]);
+
+    // Use in JSXExpressionContainer to enable hoisting
+    return <React.Component onClick={hoistable} />;
+  }
+}"
+`;
+
 exports[`reflective-bind babel transform flowGenerics.jsx 1`] = `
 "// @flow
 

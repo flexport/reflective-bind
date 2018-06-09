@@ -130,6 +130,7 @@ const EVAL_RESULTS = {
   "bindSimple.jsx": 3,
   "bindingNodeLocNPE.jsx": undefined,
   "classReference.jsx": undefined,
+  "duplicateComputedMemberExpressionStringArg.jsx": undefined,
   "flowGenerics.jsx": 6,
   "flowObjMap.jsx": undefined,
   "fnAsync.jsx": undefined,

@@ -559,6 +559,8 @@ module.exports = function(opts) {
       return true;
     } else if (t.isIdentifier(node1)) {
       return node1.name === node2.name;
+    } else if (t.isStringLiteral(node1)) {
+      return node1.value === node2.value;
     } else if (t.isMemberExpression(node1)) {
       return (
         node1.computed === node2.computed &&
