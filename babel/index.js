@@ -3,9 +3,8 @@
  * function expressions and arrow functions when possible to remove function
  * copying.
  *
- * Technically we only need to do this for code relevant to React render.
- * However, for completeness and simplicity, we just apply to all places
- * in the code. This can be changed in the future.
+ * We only do this for code relevant to React render to minimize the
+ * processing time and code bloat.
  *
  * Function.prototype.bind:
  *   - Simply replace `expression.bind(...bindArgs)` with
