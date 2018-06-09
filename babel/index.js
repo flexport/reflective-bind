@@ -568,9 +568,7 @@ module.exports = function(opts) {
         nodesDefinitelyEqual(node1.property, node2.property)
       );
     } else {
-      throw new Error(
-        `Equality comparison not supported for node type "${node1.type}"`
-      );
+      return false;
     }
   }
 
