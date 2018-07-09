@@ -17,6 +17,13 @@ import React from "react";
         // Only `this.props.nested` should be pulled out since we don't hoist
         // deep attribute accesses.
         this.props.nested.deepNested.deepNestedFn();
+
+        // The entire `this.props["string.key.fn"]` should be hoisted because we don't
+        // expect that `"string.key.fn"` cares about the `props` being its context.
+        this.props["string.key.fn"]();
+
+        // Using a second string function shouldn't fail. It should behave as the previous.
+        this.props["another.string.key.fn"]();
       };
 
       // Use in JSXExpressionContainer to enable hoisting
@@ -30,6 +37,8 @@ import React from "react";
           deepNestedFn: () => {},
         },
       },
+      "string.key.fn": () => {},
+      "another.string.key.fn": () => {},
     },
   };
 })();

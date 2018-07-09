@@ -567,6 +567,8 @@ module.exports = function(opts) {
         nodesDefinitelyEqual(node1.object, node2.object) &&
         nodesDefinitelyEqual(node1.property, node2.property)
       );
+    } else if (t.isStringLiteral(node1)) {
+      return node1.value === node2.value;
     } else {
       return false;
     }
