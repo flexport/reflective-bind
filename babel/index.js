@@ -105,6 +105,10 @@ module.exports = function(opts) {
         logger.debug(
           `Total inline functions transformed: ${_totalTransformedInAllFiles}`
         );
+
+        // Have babel update all references after hoisting.
+        // There's probably a more efficient way to do this.
+        path.scope.crawl();
       }
     },
   };

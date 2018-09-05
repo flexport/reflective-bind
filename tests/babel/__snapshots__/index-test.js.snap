@@ -1222,6 +1222,32 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform lodashBabelPlugin.jsx 1`] = `
+"import _intersection from \\"lodash/intersection\\";
+// @flow
+
+import { babelBind as _testBind } from \\"../../src\\";
+
+function _testBBHoisted(intersection, c, d) {
+  // After hoisting, this should reference the \`intersection\` function param
+  intersection([], []);
+}
+
+import * as React from \\"react\\";
+
+
+(function () {
+  let a = 1;
+
+  // After hoisting, the hoisted function should be called with the transformed
+  // lodash import (i.e. \`_intersection\`)
+  const hoistable = _testBind(_testBBHoisted, this, _intersection);
+
+  // Use in JSXExpressionContainer to enable hoisting
+  <React.Component onClick={hoistable} />;
+})();"
+`;
+
 exports[`reflective-bind babel transform mapArrow.jsx 1`] = `
 "// @flow
 

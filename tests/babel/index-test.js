@@ -147,6 +147,7 @@ const EVAL_RESULTS = {
   "fnWithFlow.jsx": 4,
   "ignorePropNameByRegex.jsx": undefined,
   "jsxHtmlLiteral.jsx": undefined,
+  "lodashBabelPlugin.jsx": undefined,
   "mapArrow.jsx": undefined,
   "noTransform.jsx": undefined,
   "reassignIdentifier.jsx": undefined,
