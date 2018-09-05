@@ -29,7 +29,7 @@ const SNAPSHOT_TRANSFORM_OPTS = {
   parserOpts: {
     plugins: ["flow", "jsx"],
   },
-  plugins: [TARGET_PLUGIN],
+  plugins: [TARGET_PLUGIN, "lodash"],
 };
 
 const VALIDATE_TRANSFORM_OPTS = {
