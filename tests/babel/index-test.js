@@ -34,8 +34,25 @@ const SNAPSHOT_TRANSFORM_OPTS = {
 
 const VALIDATE_TRANSFORM_OPTS = {
   babelrc: false,
-  presets: ["env", "react", "stage-2"],
-  plugins: [TARGET_PLUGIN, "transform-flow-comments"],
+  presets: ["@babel/preset-env", "@babel/preset-flow", "@babel/preset-react"],
+  plugins: [
+    TARGET_PLUGIN,
+    "@babel/plugin-transform-flow-comments",
+    "@babel/plugin-syntax-dynamic-import",
+    "@babel/plugin-syntax-import-meta",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-json-strings",
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        legacy: true,
+      },
+    ],
+    "@babel/plugin-proposal-function-sent",
+    "@babel/plugin-proposal-export-namespace-from",
+    "@babel/plugin-proposal-numeric-separator",
+    "@babel/plugin-proposal-throw-expressions",
+  ],
 };
 
 const NESTED_PROPERTY_RE = /^Accessing nested property.*/;
