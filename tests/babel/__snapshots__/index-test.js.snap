@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`reflective-bind babel transform alreadyImported.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind2 } from \\"../../src\\";
+"import { babelBind as _testBind2 } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a) {
   return a;
 }
@@ -23,9 +23,9 @@ import { babelBind as _testBind } from \\"../../src\\";
 `;
 
 exports[`reflective-bind babel transform alreadyRequired.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind2 } from \\"../../src\\";
+"import { babelBind as _testBind2 } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a) {
   return a;
 }
@@ -45,9 +45,9 @@ const _testBind = require(\\"../../src\\").babelBind;
 `;
 
 exports[`reflective-bind babel transform arrowBind.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a, b, c) {
   return a + b + c;
 }
@@ -64,9 +64,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowComputedProperty.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(prop, obj) {
   return obj[prop].b;
 }
@@ -116,9 +116,9 @@ exports[`reflective-bind babel transform arrowContext.jsx 1`] = `
 `;
 
 exports[`reflective-bind babel transform arrowDeclareFnAfterFn.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(fn) {
   return fn;
 }
@@ -152,9 +152,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowExpressionBody.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a, b, c) {
   return a + b + c;
 }
@@ -173,13 +173,13 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowInlineJsxContainerElement.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
 function _testBBHoisted2(React) {
   <React.Component />;
 }
 
+// @flow
 function _testBBHoisted(React) {
   <React.Component onClick={_testBind(_testBBHoisted2, this, React)} />;
 }
@@ -194,9 +194,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowJsxIdentifier.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(Component) {
   <Component>
       <div>1</div>
@@ -218,9 +218,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowJsxMemberExpression.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(Component) {
   <Component.Whatever>
       <div>1</div>
@@ -242,9 +242,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowMemberExpression.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(obj) {
   return obj.a.b;
 }
@@ -270,9 +270,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowNested.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a, b) {
   let c = 3; // Should not hoist this returned arrow fn because it is not used in a
   // JSXExpressionContainer.
@@ -294,8 +294,7 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowNestedHoistDeep.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
 function _testBBHoisted2(a, React, b) {
   let c = 3;
@@ -305,6 +304,7 @@ function _testBBHoisted2(a, React, b) {
   return <React.Component onClick={nestedHoistable} />;
 }
 
+// @flow
 function _testBBHoisted(a, b, c, d) {
   return a + b + c + d;
 }
@@ -322,9 +322,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowNestedHoistInner.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(item) {
   return item;
 }
@@ -351,9 +351,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowRedeclareVar.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted() {
   let a = 2;
   return a;
@@ -448,9 +448,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowReferenceOkAssignment.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a) {
   return a;
 }
@@ -470,9 +470,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowReferenceOkAssignmentDifferentScope.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a) {
   return a;
 }
@@ -557,9 +557,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowRestSpread.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a, ...rest) {
   return b => a + b + rest.reduce((tot, n) => tot + n, 0);
 }
@@ -576,9 +576,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowSimple.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a, c, d) {
   let b = 2;
   return a + b + c + d;
@@ -598,9 +598,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowStatelessComponentProps.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(props) {
   // Only \`props\` should be hoisted because we don't hoist deep attribute
   // access.
@@ -621,9 +621,9 @@ function MyComponent(props: {
 `;
 
 exports[`reflective-bind babel transform arrowThis.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(outerScopeVar, arg) {
   // \`this\` should not be hoisted since we're not accessing any
   // properties on it.
@@ -674,9 +674,9 @@ import React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowThisCallExpression.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(_temp, _temp2) {
   // The entire \`this.props.fn\` should be hoisted because we don't
   // expect that \`fn\` cares about the \`props\` being its context.
@@ -716,9 +716,9 @@ import React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowThisProps.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(outerScopeVar, _temp, _temp2, _temp3, arg) {
   // \`this\` should not be hoisted since we're not accessing any
   // properties on it.
@@ -783,9 +783,9 @@ import React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowThisState.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(outerScopeVar, _temp, _temp2, _temp3, arg) {
   // \`this\` should not be hoisted since we're not accessing any
   // properties on it.
@@ -850,9 +850,9 @@ import React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform arrowTopLevel.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a) {
   return a;
 }
@@ -875,9 +875,9 @@ const shouldNotHoist = a => {
 `;
 
 exports[`reflective-bind babel transform arrowWithFlow.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a, c: C, d: D) {
   let b = 2;
   return a + b + c + d;
@@ -916,8 +916,8 @@ import React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform bindFlow.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
+// @flow
 import * as React from \\"react\\";
 
 (function () {
@@ -936,8 +936,8 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform bindInlineJsxContainerElement.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
+// @flow
 import * as React from \\"react\\";
 
 (function () {
@@ -949,8 +949,8 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform bindNonFunction.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
+// @flow
 import * as React from \\"react\\";
 
 (function () {
@@ -971,10 +971,11 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform bindSimple.jsx 1`] = `
-"/* eslint-disable flowtype/require-valid-file-annotation */
+"import { babelBind as _testBind } from \\"../../src\\";
+
+/* eslint-disable flowtype/require-valid-file-annotation */
 
 /* eslint-disable flowtype/require-parameter-type */
-import { babelBind as _testBind } from \\"../../src\\";
 import React from \\"react\\";
 
 (function () {
@@ -991,7 +992,9 @@ import React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform bindingNodeLocNPE.jsx 1`] = `
-"// @flow
+"import { babelBind as _testBind } from \\"../../src\\";
+
+// @flow
 
 /**
  * We were getting a NPE when trying to access a binding's node location.
@@ -1002,8 +1005,6 @@ exports[`reflective-bind babel transform bindingNodeLocNPE.jsx 1`] = `
  * fixed by determining the execution order of code without looking at the
  * code's source location and using the AST instead.
  */
-import { babelBind as _testBind } from \\"../../src\\";
-
 function _testBBHoisted(a) {
   let nonConst = 3;
   nonConst = 10; // eslint-disable-next-line no-unused-vars
@@ -1027,9 +1028,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform classReference.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(Foo) {
   return Foo;
 }
@@ -1049,9 +1050,9 @@ import * as React from \\"react\\"; // Regression test.
 `;
 
 exports[`reflective-bind babel transform duplicateComputedMemberExpressionStringArg.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(_temp) {
   // There should only be one parameter in the hoisted function
   _temp;
@@ -1074,9 +1075,9 @@ class MyComponent extends React.Component<{|
 `;
 
 exports[`reflective-bind babel transform flowGenerics.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted() {
   let arr: Array<number> = [1, 2, 3];
   return arr.reduce((sum, next) => sum + next, 0);
@@ -1094,10 +1095,10 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform flowObjMap.jsx 1`] = `
-"// @flow
-// https://flow.org/en/docs/types/utilities/#toc-objmap
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
+// https://flow.org/en/docs/types/utilities/#toc-objmap
 function _testBBHoisted() {
   // eslint-disable-next-line space-before-function-paren, no-unused-vars
   function run<A, O: {
@@ -1120,9 +1121,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform ignorePropNameByRegex.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(a) {
   return a;
 }
@@ -1164,9 +1165,9 @@ import * as React from \\"react\\";
 
 exports[`reflective-bind babel transform lodashBabelPlugin.jsx 1`] = `
 "import _intersection from \\"lodash/intersection\\";
-// @flow
 import { babelBind as _testBind } from \\"../../src\\";
 
+// @flow
 function _testBBHoisted(intersection, c, d) {
   // After hoisting, this should reference the \`intersection\` function param
   intersection([], []);
@@ -1210,13 +1211,13 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform reassignIdentifier.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
 function _testBBHoisted2(a) {
   return a;
 }
 
+// @flow
 function _testBBHoisted() {
   return 1;
 }
@@ -1263,7 +1264,9 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform renameIdentifier.jsx 1`] = `
-"// @flow
+"import { babelBind as _testBind } from \\"../../src\\";
+
+// @flow
 
 /**
  * We were sharing the same identifier object for the argument in the call to
@@ -1271,8 +1274,6 @@ exports[`reflective-bind babel transform renameIdentifier.jsx 1`] = `
  * issue where if the identifier is renamed at the call site, the function
  * parameter is also renamed.
  */
-import { babelBind as _testBind } from \\"../../src\\";
-
 function _testBBHoisted(w) {
   return w;
 }
@@ -1307,13 +1308,13 @@ import * as React from \\"react\\";
 `;
 
 exports[`reflective-bind babel transform ternaryExpression.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
 function _testBBHoisted() {
   return 1;
 }
 
+// @flow
 import * as React from \\"react\\";
 
 function foo() {}
@@ -1327,13 +1328,13 @@ function foo() {}
 `;
 
 exports[`reflective-bind babel transform ternaryExpressionInline.jsx 1`] = `
-"// @flow
-import { babelBind as _testBind } from \\"../../src\\";
+"import { babelBind as _testBind } from \\"../../src\\";
 
 function _testBBHoisted() {
   return 1;
 }
 
+// @flow
 import * as React from \\"react\\";
 
 function foo() {}

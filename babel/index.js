@@ -39,6 +39,7 @@
 
 // NOTE: this file written to run directly in node without being transpiled
 
+const {addNamed} = require("@babel/helper-module-imports");
 const logger = require("./utils/logger");
 
 const SKIP_RE = /^\/\/ @no-reflective-bind-babel$/m;
@@ -49,8 +50,10 @@ module.exports = function(opts) {
   let _propRegexCompiled;
   let _filename;
   let _hoistedSlug;
-  let _bableBindIdentifer;
-  let _babelBindImportDeclaration;
+  let _bableBindImportSlug;
+  let _indexModuleName;
+
+  let _cachedBabelBindImportIdentifierName;
 
   let _hoistPath;
   let _totalTransformedInAllFiles = 0;
@@ -85,13 +88,12 @@ module.exports = function(opts) {
       _filename = file.opts.filename;
       _hoistPath = path;
       _hoistedSlug = hoistedSlug;
-      _bableBindIdentifer = _hoistPath.scope.generateUidIdentifier(
-        babelBindSlug
-      );
-      _babelBindImportDeclaration = t.importDeclaration(
-        [t.importSpecifier(_bableBindIdentifer, t.identifier("babelBind"))],
-        t.stringLiteral(indexModule)
-      );
+      _bableBindImportSlug = babelBindSlug;
+      _indexModuleName = indexModule;
+
+      // We only add the import if the cached name is undefined so that the
+      // import is only added once per file.
+      _cachedBabelBindImportIdentifierName = undefined;
 
       const state = {
         numTransformed: 0,
@@ -99,8 +101,6 @@ module.exports = function(opts) {
       path.traverse(visitor, state);
 
       if (state.numTransformed > 0) {
-        addImport();
-
         _totalTransformedInAllFiles += state.numTransformed;
         logger.debug(
           `Total inline functions transformed: ${_totalTransformedInAllFiles}`
@@ -602,11 +602,22 @@ module.exports = function(opts) {
   }
 
   function callReflectiveBindExpression(...args) {
-    return t.callExpression(_bableBindIdentifer, args);
+    return t.callExpression(createBabelBindIdentifier(), args);
   }
 
-  function addImport() {
-    addToHoistPath(_babelBindImportDeclaration);
+  function createBabelBindIdentifier() {
+    if (_cachedBabelBindImportIdentifierName == null) {
+      // Create the babelBind import if not imported already
+      _cachedBabelBindImportIdentifierName = addNamed(
+        _hoistPath,
+        "babelBind",
+        _indexModuleName,
+        {
+          nameHint: _bableBindImportSlug,
+        }
+      ).name;
+    }
+    return t.identifier(_cachedBabelBindImportIdentifierName);
   }
 
   function addToHoistPath(node) {
