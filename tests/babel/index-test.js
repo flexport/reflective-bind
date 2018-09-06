@@ -32,6 +32,29 @@ const SNAPSHOT_TRANSFORM_OPTS = {
   plugins: [TARGET_PLUGIN, "lodash"],
 };
 
+const CUSTOM_SNAPSHOT_OPTS = {
+  "ignorePropNameByRegex.jsx": {
+    ...SNAPSHOT_TRANSFORM_OPTS,
+    plugins: [
+      [
+        plugin,
+        {
+          ...PLUGIN_OPTS,
+          propRegex: "^on[A-Z].*$",
+        },
+      ],
+    ],
+  },
+  "babel7Regression.jsx": {
+    babelrc: false,
+    parserOpts: {
+      plugins: ["flow", "jsx"],
+    },
+    presets: ["@babel/preset-env"],
+    plugins: [TARGET_PLUGIN],
+  },
+};
+
 const VALIDATE_TRANSFORM_OPTS = {
   babelrc: false,
   presets: ["@babel/preset-env", "@babel/preset-flow", "@babel/preset-react"],
@@ -174,29 +197,6 @@ const EVAL_RESULTS = {
   "renameIdentifier.jsx": undefined,
   "ternaryExpression.jsx": undefined,
   "ternaryExpressionInline.jsx": undefined,
-};
-
-const CUSTOM_SNAPSHOT_OPTS = {
-  "ignorePropNameByRegex.jsx": {
-    ...SNAPSHOT_TRANSFORM_OPTS,
-    plugins: [
-      [
-        plugin,
-        {
-          ...PLUGIN_OPTS,
-          propRegex: "^on[A-Z].*$",
-        },
-      ],
-    ],
-  },
-  "babel7Regression.jsx": {
-    babelrc: false,
-    parserOpts: {
-      plugins: ["flow", "jsx"],
-    },
-    presets: ["@babel/preset-env"],
-    plugins: [TARGET_PLUGIN],
-  },
 };
 
 function validateResult(filename: string, code: string) {
