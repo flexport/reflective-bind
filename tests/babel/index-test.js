@@ -140,6 +140,7 @@ const EVAL_RESULTS = {
   "arrowThisState.jsx": undefined,
   "arrowTopLevel.jsx": undefined,
   "arrowWithFlow.jsx": 10,
+  "babel7Regression.jsx": undefined,
   "bindComputed.jsx": undefined,
   "bindFlow.jsx": 3,
   "bindInlineJsxContainerElement.jsx": undefined,
@@ -187,6 +188,14 @@ const CUSTOM_SNAPSHOT_OPTS = {
         },
       ],
     ],
+  },
+  "babel7Regression.jsx": {
+    babelrc: false,
+    parserOpts: {
+      plugins: ["flow", "jsx"],
+    },
+    presets: ["@babel/preset-env"],
+    plugins: [TARGET_PLUGIN],
   },
 };
 

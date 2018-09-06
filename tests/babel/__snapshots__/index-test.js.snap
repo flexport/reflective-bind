@@ -898,6 +898,34 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform babel7Regression.jsx 1`] = `
+"\\"use strict\\";
+
+var _src = require(\\"../../src\\");
+
+var React = _interopRequireWildcard(require(\\"react\\"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _testBBHoisted2() {
+  return 2;
+}
+
+// @flow
+function _testBBHoisted() {
+  return 1;
+}
+
+(function () {
+  // https://github.com/flexport/reflective-bind/issues/26
+  // The transformed code with babel-env should have both calls to babelBind
+  // transformed to something like (0, _src.babelBind)(...)
+  // Use in JSXExpressionContainer to enable hoisting
+  <React.Component onClick={(0, _src.babelBind)(_testBBHoisted, this)} />;
+  <React.Component onClick={(0, _src.babelBind)(_testBBHoisted2, this)} />;
+})();"
+`;
+
 exports[`reflective-bind babel transform bindComputed.jsx 1`] = `
 "// @flow
 import React from \\"react\\";
