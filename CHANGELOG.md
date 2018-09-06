@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+* Upgrade to babel 7
+* Fix hanging `babelBind` identifier from babel 7 upgrade (https://github.com/flexport/reflective-bind/issues/26)
 
 ## 0.2.1
 * Fix hanging identifiers when applying the lodash babel plugin after this plugin
