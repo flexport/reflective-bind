@@ -376,6 +376,7 @@ module.exports = function(opts) {
   function shouldHoistIdentifier(identifierPath, limitScope) {
     return (
       !isNonComputedNestedProperty(identifierPath) &&
+      !isNonComputedObjectKey(identifierPath) &&
       !hasBindingInScope(identifierPath, limitScope)
     );
   }
@@ -387,6 +388,15 @@ module.exports = function(opts) {
         t.isJSXMemberExpression(parentNode)) &&
       !parentNode.computed &&
       parentNode.property === identifierPath.node
+    );
+  }
+
+  function isNonComputedObjectKey(identifierPath) {
+    const parentNode = identifierPath.parentPath.node;
+    return (
+      t.isProperty(parentNode) &&
+      !parentNode.computed &&
+      parentNode.key === identifierPath.node
     );
   }
 

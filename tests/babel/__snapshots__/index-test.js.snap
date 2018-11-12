@@ -350,6 +350,35 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform arrowObjectPropertyIdentifier.jsx 1`] = `
+"import { babelBind as _testBind } from \\"../../src\\";
+
+// @flow
+function _testBBHoisted(isParam) {
+  return {
+    // \`isParam\` should become a parameter in the hoisted function
+    [isParam]: 1,
+    // \`notParam\` should NOT become a parameter in the hoisted function
+    notParam: 2
+  };
+}
+
+import * as React from \\"react\\";
+
+class MyComponent extends React.Component {
+  render() {
+    const isParam = 1;
+    const notParam = 2;
+
+    const hoistable = _testBind(_testBBHoisted, this, isParam); // Use in JSXExpressionContainer to enable hoisting
+
+
+    return <React.Component onClick={hoistable} />;
+  }
+
+}"
+`;
+
 exports[`reflective-bind babel transform arrowRedeclareVar.jsx 1`] = `
 "import { babelBind as _testBind } from \\"../../src\\";
 

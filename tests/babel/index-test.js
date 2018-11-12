@@ -145,6 +145,7 @@ const EVAL_RESULTS = {
   "arrowNested.jsx": 10,
   "arrowNestedHoistDeep.jsx": undefined,
   "arrowNestedHoistInner.jsx": undefined,
+  "arrowObjectPropertyIdentifier.jsx": undefined,
   "arrowReferenceLateAssignment.jsx": 10,
   "arrowReferenceLateAssignmentDifferentScope.jsx": 10,
   "arrowReferenceOkAssignment.jsx": 10,
