@@ -130,37 +130,36 @@ module.exports = function(opts) {
       }
     },
 
-    JSXAttribute(path) {
+    JSXAttribute(path, state) {
       if (
         t.isJSXIdentifier(path.node.name) &&
-        shouldSkipProp(path.node.name.name)
+        !shouldSkipPropName(path.node.name.name) &&
+        t.isJSXExpressionContainer(path.node.value)
       ) {
-        path.skip();
-      }
-    },
+        const exprPath = path.get("value.expression");
+        if (t.isIdentifier(exprPath)) {
+          const binding = exprPath.scope.getBinding(exprPath.node.name);
+          if (!binding) {
+            return;
+          }
+          processPath(binding.path, state);
 
-    JSXExpressionContainer(path, state) {
-      const exprPath = path.get("expression");
-      if (t.isIdentifier(exprPath)) {
-        const binding = exprPath.scope.getBinding(exprPath.node.name);
-        if (!binding) {
-          return;
-        }
-        processPath(binding.path, state);
-
-        // constantViolations are just assignments to the variable after the
-        // initial binding. We want to hoist all potential arrow functions that
-        // are assigned to the variable.
-        for (let i = 0, n = binding.constantViolations.length; i < n; i++) {
-          processPath(binding.constantViolations[i], state);
+          // constantViolations are just assignments to the variable after the
+          // initial binding. We want to hoist all potential arrow functions that
+          // are assigned to the variable.
+          for (let i = 0, n = binding.constantViolations.length; i < n; i++) {
+            processPath(binding.constantViolations[i], state);
+          }
+        } else {
+          processPath(exprPath, state);
         }
       } else {
-        processPath(exprPath, state);
+        path.skip();
       }
     },
   };
 
-  function shouldSkipProp(name) {
+  function shouldSkipPropName(name) {
     return (
       name === "ref" || (_propRegexCompiled && !_propRegexCompiled.test(name))
     );
@@ -214,9 +213,6 @@ module.exports = function(opts) {
       canHoist: true,
       // Set of identifiers that are bound outside of the function.
       outerIdentifierNames: new Set(),
-      // List of all member expressions that start with "this.props" or
-      // "this.state".
-      thisUsagePaths: [],
     };
     path.traverse(arrowFnVisitor, state);
     if (!state.canHoist) {
@@ -226,26 +222,16 @@ module.exports = function(opts) {
     rootState.numTransformed++;
     logger.debug(makeMsg("Transformed arrow function", path));
 
-    // Convert member expressions that start with `this` into arguments and
-    // bind them with reflective bind. This makes sure our hoisted function is
-    // as pure as possible.
-    const [thisUsageArgs, thisUsageNodes] = replacePathsWithUniqueIdentifiers(
-      path.scope,
-      state.thisUsagePaths
-    );
-
     const hoistedIdentifier = hoist(path.node.body, [
       // outerIdentifiers must come first so we can bind them
       ...makeIdentifiers(state.outerIdentifierNames),
-      ...thisUsageArgs,
       ...path.node.params,
     ]);
     path.replaceWith(
       callReflectiveBindExpression(
         hoistedIdentifier,
         t.thisExpression(),
-        ...makeIdentifiers(state.outerIdentifierNames),
-        ...thisUsageNodes
+        ...makeIdentifiers(state.outerIdentifierNames)
       )
     );
   }
@@ -260,47 +246,6 @@ module.exports = function(opts) {
 
     JSXIdentifier(path, state) {
       arrowFnIdentifier(path, state);
-    },
-
-    ThisExpression(path, state) {
-      // Only allow hoisting if `this` refers to the same `this` as the arrow
-      // function we want to hoist.
-      if (!isDefinitelySameThisContext(state.fnPath, path)) {
-        return;
-      }
-
-      // Restrict `this` hoisting to only accesses to `this.(props|state)` and
-      // `this.(props|state).value`. We don't support hoisting deep property
-      // access (e.g. this.props.value.nested becomes `_temp.nested`).
-      const parentPath = path.parentPath;
-      if (
-        !parentPath ||
-        !t.isMemberExpression(parentPath.node) ||
-        parentPath.node.object !== path.node
-      ) {
-        return;
-      }
-      const parentProperty = parentPath.node.property;
-      if (
-        !t.isIdentifier(parentProperty) ||
-        (parentProperty.name !== "props" && parentProperty.name !== "state")
-      ) {
-        return;
-      }
-
-      const grandparentPath = parentPath.parentPath;
-
-      // If the grandparent is a MemberExpression, hoist that instead.
-      const memberExpressionPath =
-        grandparentPath &&
-        t.isMemberExpression(grandparentPath.node) &&
-        grandparentPath.node.object === parentPath.node
-          ? grandparentPath
-          : parentPath;
-
-      validateNestedPropertyAccessInArrowFn(memberExpressionPath);
-
-      state.thisUsagePaths.push(memberExpressionPath);
     },
 
     Flow(path) {
@@ -524,66 +469,6 @@ module.exports = function(opts) {
       }
     }
     return [-1, -1];
-  }
-
-  /**
-   * Returns true only if path has the same `this` context as parentPath.
-   *
-   * This means that the function-ancestor chain must only consist of arrow
-   * functions.
-   */
-  function isDefinitelySameThisContext(parentFnPath, path) {
-    let cur = path.getFunctionParent();
-    while (cur) {
-      if (cur === parentFnPath) {
-        return true;
-      }
-      if (!t.isArrowFunctionExpression(cur.node)) {
-        return false;
-      }
-      cur = cur.getFunctionParent();
-    }
-    return false;
-  }
-
-  function replacePathsWithUniqueIdentifiers(scope, paths) {
-    const identifiers = [];
-    const nodes = [];
-    for (let i = 0, n = paths.length; i < n; i++) {
-      const path = paths[i];
-      const nodeIdx = nodes.findIndex(n => nodesDefinitelyEqual(n, path.node));
-      if (nodeIdx >= 0) {
-        path.replaceWith(identifiers[nodeIdx]);
-      } else {
-        const id = scope.generateUidIdentifier();
-        identifiers.push(id);
-        nodes.push(path.node);
-        // Must replace path after we get the original node from the path.
-        path.replaceWith(id);
-      }
-    }
-    return [identifiers, nodes];
-  }
-
-  function nodesDefinitelyEqual(node1, node2) {
-    /* istanbul ignore else */
-    if (node1.type !== node2.type) {
-      return false;
-    } else if (t.isThisExpression(node1)) {
-      return true;
-    } else if (t.isIdentifier(node1)) {
-      return node1.name === node2.name;
-    } else if (t.isStringLiteral(node1)) {
-      return node1.value === node2.value;
-    } else if (t.isMemberExpression(node1)) {
-      return (
-        node1.computed === node2.computed &&
-        nodesDefinitelyEqual(node1.object, node2.object) &&
-        nodesDefinitelyEqual(node1.property, node2.property)
-      );
-    } else {
-      return false;
-    }
   }
 
   function makeIdentifiers(names) {

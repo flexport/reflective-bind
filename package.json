@@ -45,7 +45,6 @@
     "eslint-plugin-jest": "21.1.0",
     "flow-bin": "0.54.1",
     "jest": "^23.5.0",
-    "jest-environment-node-debug": "2.0.0",
     "react": "16.0.0",
     "rimraf": "2.6.2"
   },
@@ -55,7 +54,7 @@
     "lint": "eslint src tests",
     "prepublishOnly": "yarn run flow && yarn run lint && yarn run test && yarn run clean && yarn run build",
     "test": "jest",
-    "test:debug": "node --inspect-brk ./node_modules/.bin/jest -i --env jest-environment-node-debug"
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
   },
   "jest": {
     "coverageDirectory": "./coverage/",

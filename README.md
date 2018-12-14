@@ -19,31 +19,16 @@ npm install --save reflective-bind
 
 ## Using the babel plugin
 
-_NOTE: the design goal of the plugin is to preserve the semantics of your code. Your inline functions will still create new function instances each render. The transform simply enables the equality comparison of two function instances via reflection._
-
 Add it to the top of your plugin list in `.babelrc` (it must be run before other plugins that transform arrow functions and `bind` calls):
 
 ```
 "plugins": [
-  ["reflective-bind/babel", {"log": "debug"}],
+  ["reflective-bind/babel", {"propRegex": "^on[A-Z].*$", "log": "debug"}],
   ...
 ]
 ```
 
-And call reflective bind’s `shouldComponentUpdate` helper function in your component:
-
-```js
-import {shouldComponentUpdate} from "reflective-bind";
-
-class MyComponent extends React.Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return shouldComponentUpdate(this, nextProps, nextState);
-  }
-  ...
-}
-```
-
-Alternatively, subclass `React.Component` and override `shouldComponentUpdate`. Then extend your custom component when you want a pure component.
+Next, create a custom pure component class with reflective-bind's `shouldComponentUpdate`. Extend this custom pure component instead of `React.PureComponent` in your codebase.
 
 ```js
 import * as React from "react";
@@ -64,9 +49,9 @@ If you do not want the babel plugin to process a specific file, add the followin
 
 ### Plugin options
 
-#### propRegex (_default: transform all props_)
+#### propRegex (_default: .\*_)
 
-When specified, only transform props whose name matches the regular expression. The intended use case is to avoid transforming render callbacks, as this can lead to stale render bugs.
+When specified, only transform props whose name matches the regular expression. The recommended use case is to avoid transforming render callbacks, as this can lead to stale render bugs if the callback function is not pure.
 
 For example, if all of your non-render callbacks are prefixed with `on`, such as `onClick`, consider using `"propRegex": "^on[A-Z].*$"`.
 
@@ -74,10 +59,10 @@ For example, if all of your non-render callbacks are prefixed with `on`, such as
 
 Specifies the minimum level of logs to output to the console. Enabling logging at a given level also enables logging at all higher levels.
 
-* **debug** - output messages useful for debugging (e.g. which functions are transformed).
-* **info** - output helpful information (e.g. optimization tips).
-* **warn** - output warnings (e.g. which functions cannot be transformed). These can usually be fixed with some simple refactoring.
-* **off** - disable logging. Recommended for production.
+- **debug** - output messages useful for debugging (e.g. which functions are transformed).
+- **info** - output helpful information (e.g. optimization tips).
+- **warn** - output warnings (e.g. which functions cannot be transformed). These can usually be fixed with some simple refactoring.
+- **off** - disable logging. Recommended for production.
 
 ### Dependencies
 
@@ -85,14 +70,14 @@ The babel plugin will add ES6 import declarations to your code. This shouldn’t
 
 ### What the plugin does
 
-The plugin simply transforms inline functions into calls to `reflectiveBind`. This then allows the `shouldComponentUpdate` helper function to use `reflectiveEqual` in the shallow comparison equality check.
+The plugin transforms inline functions in JSX attributes into calls to `reflectiveBind`. This then allows the `shouldComponentUpdate` helper function to use `reflectiveEqual` in the shallow comparison equality check.
 
 ## Using reflectiveBind manually
 
 Binding your function with `reflectiveBind` simply stores the original function, the context (thisArg), and the arguments as properties on the bound function instance. This allows you to check if two reflectively bound functions are equal.
 
 ```js
-import reflectiveBind, {reflectiveEqual} from "reflective-bind";
+import reflectiveBind, {reflectiveEqual, isReflective} from "reflective-bind";
 
 function baseFn(msg) {
   alert(msg);
@@ -106,6 +91,9 @@ reflectiveEqual(fn1, fn2); // true
 
 const fn3 = reflectiveBind(baseFn, undefined, "world");
 reflectiveEqual(fn1, fn3); // false
+
+isReflective(baseFn); // false
+isReflective(fn1); // true
 ```
 
 Note that `reflectiveEqual` only works for reflectively bound functions.
@@ -115,25 +103,11 @@ reflectiveEqual(1, 1); // false
 reflectiveEqual(baseFn, baseFn); // false
 ```
 
-We also expose a `isReflective` helper function that lets you check if something is a reflectively bound function.
-
 ### Flow types
 
-All exported functions are flow typed out of the box. `reflectiveBind` is typed with function overloading:
+All exported functions are flow typed out of the box.
 
-```
-// Function with 0 args
-declare function reflectiveBind<A>(f: () => A, ctx: mixed): () => A;
-
-// Function with 1 arg
-declare function reflectiveBind<A, B>(f: (A) => B, ctx: mixed): A => B;
-
-declare function reflectiveBind<A, B>(f: (A) => B, ctx: mixed, a: A): () => B;
-
-...
-```
-
-We currently support `reflectiveBind` calls up to 4 args:
+`reflectiveBind` currently supports calls up to 4 args:
 
 ```js
 reflectiveBind(baseFn, ctx, a, b, c, d);
@@ -143,7 +117,7 @@ reflectiveBind(baseFn, ctx, a, b, c, d);
 
 The following are examples of some inline functions that will be transformed into calls to `reflectiveBind` by the babel plugin:
 
-* Inline arrow functions:
+- Inline arrow functions:
 
 ```jsx
 function MyComponent(props) {
@@ -152,7 +126,7 @@ function MyComponent(props) {
 }
 ```
 
-* `Function.prototype.bind`:
+- `Function.prototype.bind`:
 
 ```jsx
 function MyComponent(props) {
@@ -161,7 +135,7 @@ function MyComponent(props) {
 }
 ```
 
-* Multiple assignments / reassignments:
+- Multiple assignments / reassignments:
 
 ```jsx
 function MyComponent(props) {
@@ -177,7 +151,7 @@ function MyComponent(props) {
 }
 ```
 
-* Ternary expressions:
+- Ternary expressions:
 
 ```jsx
 function MyComponent(props) {
@@ -189,7 +163,7 @@ function MyComponent(props) {
 }
 ```
 
-* For maximum optimization, avoid accessing nested attributes in your arrow function. Prefer to pull the nested value out to a const and close over it in your arrow function.
+- For maximum optimization, avoid accessing nested attributes in your arrow function. Prefer to pull the nested value out to a const and close over it in your arrow function.
 
 ```jsx
 function MyComponent(props) {
@@ -213,7 +187,7 @@ function MyComponent(props) {
 
 There are a few edge cases that can cause an arrow function to not be transformed. Nothing breaks, you just won’t have optimized code.
 
-* Your arrow function should not close over variables whose value is set after the arrow function.
+- Your arrow function should not close over variables whose value is set after the arrow function.
 
 ```jsx
 function MyComponent(props) {
@@ -231,7 +205,7 @@ function MyComponent(props) {
 }
 ```
 
-* Your arrow function must be defined inline the JSX, or at most 1 reference away.
+- Your arrow function must be defined inline the JSX, or at most 1 reference away.
 
 ```jsx
 function MyComponent(props) {

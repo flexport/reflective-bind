@@ -63,6 +63,20 @@ import * as React from \\"react\\";
 })();"
 `;
 
+exports[`reflective-bind babel transform arrowChildrenProp.jsx 1`] = `
+"// @flow
+import * as React from \\"react\\";
+
+(function () {
+  const shouldNotHoist = (a, b) => {
+    return a + b;
+  }; // Use in JSXExpressionContainer to enable hoisting
+
+
+  <React.Component>{shouldNotHoist}</React.Component>;
+})();"
+`;
+
 exports[`reflective-bind babel transform arrowComputedProperty.jsx 1`] = `
 "import { babelBind as _testBind } from \\"../../src\\";
 
@@ -653,33 +667,13 @@ exports[`reflective-bind babel transform arrowThis.jsx 1`] = `
 "import { babelBind as _testBind } from \\"../../src\\";
 
 // @flow
-function _testBBHoisted(outerScopeVar, arg) {
-  // \`this\` should not be hoisted since we're not accessing any
-  // properties on it.
-  this; // \`this.shouldNotHoist\` should not be hoisted because we're not
-  // accessing any properties on it.
-
-  this.shouldNotHoist; // \`this.shouldNotHoist.val\` should not be hoisted because it is not
-  // props or state.
-
-  this.shouldNotHoist.val; // eslint-disable-next-line no-unused-vars
-
-  const innerArrow = () => {
-    // \`this.shouldNotHoist.val\` should not be hoisted because it is not
-    // props or state.
-    this.shouldNotHoist.val;
-  }; // eslint-disable-next-line no-unused-vars
-
-
-  function inner() {
-    // Should not hoist references to \`this\` properties in nested
-    // non-arrow functions.
-    this.shouldNotHoist.val;
-  } // The outerScopeVar and arg are there just to make sure the hoisted
-  // argument order is correct.
-
-
-  return outerScopeVar + arg;
+function _testBBHoisted() {
+  // The function body should remain the same after hoisting since we
+  // don't special case references to \`this\`
+  this;
+  this.shouldNotChange;
+  this.shouldNotChange.val;
+  this.shouldNotChange.fn();
 }
 
 import React from \\"react\\";
@@ -687,192 +681,15 @@ import React from \\"react\\";
 (function () {
   return {
     foo() {
-      const outerScopeVar = 1;
-
-      const hoistable = _testBind(_testBBHoisted, this, outerScopeVar); // Use in JSXExpressionContainer to enable hoisting
+      const hoistable = _testBind(_testBBHoisted, this); // Use in JSXExpressionContainer to enable hoisting
 
 
       <React.Component onClick={hoistable} />;
     },
 
-    shouldNotHoist: {
-      val: 1
-    }
-  };
-})();"
-`;
-
-exports[`reflective-bind babel transform arrowThisCallExpression.jsx 1`] = `
-"import { babelBind as _testBind } from \\"../../src\\";
-
-// @flow
-function _testBBHoisted(_temp, _temp2) {
-  // The entire \`this.props.fn\` should be hoisted because we don't
-  // expect that \`fn\` cares about the \`props\` being its context.
-  _temp(); // Only \`this.props.nested\` should be pulled out so that the call can
-  // still look like \`_temp.nestedFn()\` to preserve the context.
-
-
-  _temp2.nestedFn(); // Only \`this.props.nested\` should be pulled out since we don't hoist
-  // deep attribute accesses.
-
-
-  _temp2.deepNested.deepNestedFn();
-}
-
-import React from \\"react\\";
-
-(function () {
-  return {
-    foo() {
-      const hoistable = _testBind(_testBBHoisted, this, this.props.fn, this.props.nested); // Use in JSXExpressionContainer to enable hoisting
-
-
-      <React.Component onClick={hoistable} />;
-    },
-
-    props: {
-      fn: () => {},
-      nested: {
-        nestedFn: () => {},
-        deepNested: {
-          deepNestedFn: () => {}
-        }
-      }
-    }
-  };
-})();"
-`;
-
-exports[`reflective-bind babel transform arrowThisProps.jsx 1`] = `
-"import { babelBind as _testBind } from \\"../../src\\";
-
-// @flow
-function _testBBHoisted(outerScopeVar, _temp, _temp2, _temp3, arg) {
-  // \`this\` should not be hoisted since we're not accessing any
-  // properties on it.
-  this; // \`this.props\` should be hoisted
-
-  _temp; // \`this.props.val\` should be hoisted.
-
-  _temp2; // \`this.props.nested.val\` should only hoist \`this.props.nested\`
-
-  _temp3.val; // eslint-disable-next-line no-unused-vars
-
-  const innerArrow = () => {
-    // Should still hoist if the nested function is an arrow function.
-    _temp2; // eslint-disable-next-line no-unused-vars
-
-    const innerInnerArrow = () => {
-      // Should still hoist since this arrow function is within a nested
-      // arrow function.
-      _temp2;
-    };
-  }; // eslint-disable-next-line no-unused-vars
-
-
-  function inner() {
-    // Should NOT hoist references to \`this\` properties in nested
-    // non-arrow functions.
-    this.props.val; // eslint-disable-next-line no-unused-vars
-
-    const innerInnerArrow = () => {
-      // Should NOT since this arrow function is within a nested
-      // non-arrow function.
-      this.props.val;
-    };
-  } // The outerScopeVar and arg are there just to make sure the hoisted
-  // argument order is correct.
-
-
-  return outerScopeVar + arg;
-}
-
-import React from \\"react\\";
-
-(function () {
-  return {
-    foo() {
-      const outerScopeVar = 1;
-
-      const hoistable = _testBind(_testBBHoisted, this, outerScopeVar, this.props, this.props.val, this.props.nested); // Use in JSXExpressionContainer to enable hoisting
-
-
-      <React.Component onClick={hoistable} />;
-    },
-
-    props: {
+    shouldNotChange: {
       val: 1,
-      nested: {
-        val: 1
-      }
-    }
-  };
-})();"
-`;
-
-exports[`reflective-bind babel transform arrowThisState.jsx 1`] = `
-"import { babelBind as _testBind } from \\"../../src\\";
-
-// @flow
-function _testBBHoisted(outerScopeVar, _temp, _temp2, _temp3, arg) {
-  // \`this\` should not be hoisted since we're not accessing any
-  // properties on it.
-  this; // \`this.state\` should be hoisted
-
-  _temp; // \`this.state.val\` should be hoisted.
-
-  _temp2; // \`this.state.nested.val\` should only hoist \`this.state.nested\`
-
-  _temp3.val; // eslint-disable-next-line no-unused-vars
-
-  const innerArrow = () => {
-    // Should still hoist if the nested function is an arrow function.
-    _temp2; // eslint-disable-next-line no-unused-vars
-
-    const innerInnerArrow = () => {
-      // Should still hoist since this arrow function is within a nested
-      // arrow function.
-      _temp2;
-    };
-  }; // eslint-disable-next-line no-unused-vars
-
-
-  function inner() {
-    // Should NOT hoist references to \`this\` properties in nested
-    // non-arrow functions.
-    this.state.val; // eslint-disable-next-line no-unused-vars
-
-    const innerInnerArrow = () => {
-      // Should NOT since this arrow function is within a nested
-      // non-arrow function.
-      this.state.val;
-    };
-  } // The outerScopeVar and arg are there just to make sure the hoisted
-  // argument order is correct.
-
-
-  return outerScopeVar + arg;
-}
-
-import React from \\"react\\";
-
-(function () {
-  return {
-    foo() {
-      const outerScopeVar = 1;
-
-      const hoistable = _testBind(_testBBHoisted, this, outerScopeVar, this.state, this.state.val, this.state.nested); // Use in JSXExpressionContainer to enable hoisting
-
-
-      <React.Component onClick={hoistable} />;
-    },
-
-    state: {
-      val: 1,
-      nested: {
-        val: 1
-      }
+      fn: () => {}
     }
   };
 })();"
@@ -1104,31 +921,6 @@ import * as React from \\"react\\"; // Regression test.
 
   <React.Component onClick={hoistable} />;
 })();"
-`;
-
-exports[`reflective-bind babel transform duplicateComputedMemberExpressionStringArg.jsx 1`] = `
-"import { babelBind as _testBind } from \\"../../src\\";
-
-// @flow
-function _testBBHoisted(_temp) {
-  // There should only be one parameter in the hoisted function
-  _temp;
-  _temp;
-}
-
-import React from \\"react\\";
-
-class MyComponent extends React.Component<{|
-  a: number
-|}> {
-  render() {
-    const hoistable = _testBind(_testBBHoisted, this, this.props[\\"a\\"]); // Use in JSXExpressionContainer to enable hoisting
-
-
-    return <React.Component onClick={hoistable} />;
-  }
-
-}"
 `;
 
 exports[`reflective-bind babel transform flowGenerics.jsx 1`] = `
